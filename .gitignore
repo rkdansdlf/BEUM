@@ -5,6 +5,11 @@ __pycache__/
 .pytest_cache/
 data/spool/
 data/*.mp4
+analysis/*.mp4
+analysis/*_result.mp4
+analysis/*_fixed.mp4
+analysis/new_data_spool/
+analysis/frame_*.jpg
 models/*.pt
 models/*.onnx
 models/*_ncnn_model/
