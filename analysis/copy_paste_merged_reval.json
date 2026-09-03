@@ -1,0 +1,3681 @@
+{
+  "session": "_1-12-2026-09-01_10-42-53",
+  "images": 98,
+  "gps_readings": 986,
+  "frames_processed": 98,
+  "detections": 78,
+  "detection_classes": {
+    "drain_area": 77,
+    "drain_full": 1
+  },
+  "queue_size": 4,
+  "queue_peak": 4,
+  "max_gps_time_diff_ms": 5159,
+  "stale_gps_frames": 1,
+  "frames": [
+    {
+      "image": "1788259383745.jpg",
+      "image_timestamp_ms": 1788259383745,
+      "gps": {
+        "latitude": 36.83746484705006,
+        "longitude": 127.18391822595522,
+        "speed_mps": 0.10753323882818222,
+        "gps_timestamp_ms": 1788259384208,
+        "time_diff_ms": 463,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.3026,
+          "bbox": [
+            1990.39,
+            1027.4,
+            2112.0,
+            1124.97
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1678,
+          "bbox": [
+            1994.84,
+            709.08,
+            2089.87,
+            773.06
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1426,
+          "bbox": [
+            1840.77,
+            0.0,
+            2112.0,
+            3.28
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259393729.jpg",
+      "image_timestamp_ms": 1788259393729,
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259394000,
+        "time_diff_ms": 271,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.5313,
+          "bbox": [
+            1318.15,
+            1157.35,
+            1514.45,
+            1188.0
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.3039,
+          "bbox": [
+            2.45,
+            0.0,
+            581.4,
+            457.03
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1253,
+          "bbox": [
+            0.0,
+            193.28,
+            1791.1,
+            1120.08
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259403739.jpg",
+      "image_timestamp_ms": 1788259403739,
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259403999,
+        "time_diff_ms": 260,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4171,
+          "bbox": [
+            1319.56,
+            1157.89,
+            1509.28,
+            1188.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259413762.jpg",
+      "image_timestamp_ms": 1788259413762,
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259413999,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.5298,
+          "bbox": [
+            1319.38,
+            1157.6,
+            1510.91,
+            1188.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259423778.jpg",
+      "image_timestamp_ms": 1788259423778,
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259423999,
+        "time_diff_ms": 221,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4403,
+          "bbox": [
+            1321.64,
+            1157.72,
+            1507.86,
+            1188.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259433787.jpg",
+      "image_timestamp_ms": 1788259433787,
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259433999,
+        "time_diff_ms": 212,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4583,
+          "bbox": [
+            1318.4,
+            1158.4,
+            1510.61,
+            1188.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259443811.jpg",
+      "image_timestamp_ms": 1788259443811,
+      "gps": {
+        "latitude": 36.8374828632394,
+        "longitude": 127.18392365581482,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259443999,
+        "time_diff_ms": 188,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4786,
+          "bbox": [
+            1318.55,
+            1157.36,
+            1513.21,
+            1188.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259454627.jpg",
+      "image_timestamp_ms": 1788259454627,
+      "gps": {
+        "latitude": 36.83748270843743,
+        "longitude": 127.1839245672122,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259454998,
+        "time_diff_ms": 371,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2723,
+          "bbox": [
+            1263.71,
+            518.74,
+            1537.21,
+            634.91
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259463842.jpg",
+      "image_timestamp_ms": 1788259463842,
+      "gps": {
+        "latitude": 36.83750544013228,
+        "longitude": 127.1837973902234,
+        "speed_mps": 2.6083537267064663,
+        "gps_timestamp_ms": 1788259463998,
+        "time_diff_ms": 156,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.9271,
+          "bbox": [
+            1370.28,
+            600.45,
+            1475.7,
+            649.36
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.4189,
+          "bbox": [
+            1216.94,
+            387.77,
+            1318.51,
+            462.02
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.3626,
+          "bbox": [
+            1293.15,
+            731.82,
+            1402.6,
+            779.35
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2522,
+          "bbox": [
+            1778.3,
+            454.94,
+            2109.4,
+            634.27
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1383,
+          "bbox": [
+            1180.81,
+            614.5,
+            1267.04,
+            667.63
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1169,
+          "bbox": [
+            444.81,
+            706.86,
+            744.1,
+            759.59
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1081,
+          "bbox": [
+            554.43,
+            707.89,
+            705.59,
+            757.97
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259483874.jpg",
+      "image_timestamp_ms": 1788259483874,
+      "gps": {
+        "latitude": 36.837796612302895,
+        "longitude": 127.18288904438276,
+        "speed_mps": 5.714813199244935,
+        "gps_timestamp_ms": 1788259483998,
+        "time_diff_ms": 124,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259493885.jpg",
+      "image_timestamp_ms": 1788259493885,
+      "gps": {
+        "latitude": 36.838083128885216,
+        "longitude": 127.18227336583547,
+        "speed_mps": 6.512298888938104,
+        "gps_timestamp_ms": 1788259493998,
+        "time_diff_ms": 113,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259506557.jpg",
+      "image_timestamp_ms": 1788259506557,
+      "gps": {
+        "latitude": 36.8384586434055,
+        "longitude": 127.18165848693187,
+        "speed_mps": 5.709146801658864,
+        "gps_timestamp_ms": 1788259506998,
+        "time_diff_ms": 441,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259513922.jpg",
+      "image_timestamp_ms": 1788259513922,
+      "gps": {
+        "latitude": 36.83879158152618,
+        "longitude": 127.18165731146463,
+        "speed_mps": 5.448890978490651,
+        "gps_timestamp_ms": 1788259513998,
+        "time_diff_ms": 76,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1074,
+          "bbox": [
+            0.35,
+            22.35,
+            69.94,
+            116.14
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259523939.jpg",
+      "image_timestamp_ms": 1788259523939,
+      "gps": {
+        "latitude": 36.839156086847616,
+        "longitude": 127.18185400541235,
+        "speed_mps": 4.630811598436111,
+        "gps_timestamp_ms": 1788259523998,
+        "time_diff_ms": 59,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1913,
+          "bbox": [
+            1650.41,
+            614.93,
+            1785.36,
+            672.47
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259533959.jpg",
+      "image_timestamp_ms": 1788259533959,
+      "gps": {
+        "latitude": 36.839473015046714,
+        "longitude": 127.18130793655904,
+        "speed_mps": 6.435519568971783,
+        "gps_timestamp_ms": 1788259533998,
+        "time_diff_ms": 39,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259543962.jpg",
+      "image_timestamp_ms": 1788259543962,
+      "gps": {
+        "latitude": 36.83977298990574,
+        "longitude": 127.18070853274686,
+        "speed_mps": 6.48192607620271,
+        "gps_timestamp_ms": 1788259543998,
+        "time_diff_ms": 36,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1296,
+          "bbox": [
+            609.91,
+            733.84,
+            729.64,
+            842.65
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1233,
+          "bbox": [
+            610.55,
+            468.01,
+            750.23,
+            583.65
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259553981.jpg",
+      "image_timestamp_ms": 1788259553981,
+      "gps": {
+        "latitude": 36.840050385693964,
+        "longitude": 127.18018597763927,
+        "speed_mps": 3.5519550959123687,
+        "gps_timestamp_ms": 1788259553998,
+        "time_diff_ms": 17,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259564776.jpg",
+      "image_timestamp_ms": 1788259564776,
+      "gps": {
+        "latitude": 36.840292043366524,
+        "longitude": 127.18022989502985,
+        "speed_mps": 5.0091723820232,
+        "gps_timestamp_ms": 1788259564998,
+        "time_diff_ms": 222,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259574020.jpg",
+      "image_timestamp_ms": 1788259574020,
+      "gps": {
+        "latitude": 36.840549842482304,
+        "longitude": 127.18049961051668,
+        "speed_mps": 3.105045165434036,
+        "gps_timestamp_ms": 1788259573998,
+        "time_diff_ms": 22,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259584036.jpg",
+      "image_timestamp_ms": 1788259584036,
+      "gps": {
+        "latitude": 36.840769866721764,
+        "longitude": 127.18076264709359,
+        "speed_mps": 4.490300543189836,
+        "gps_timestamp_ms": 1788259583998,
+        "time_diff_ms": 38,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259594154.jpg",
+      "image_timestamp_ms": 1788259594154,
+      "gps": {
+        "latitude": 36.84118893718467,
+        "longitude": 127.18117251013555,
+        "speed_mps": 5.644146387655362,
+        "gps_timestamp_ms": 1788259593998,
+        "time_diff_ms": 156,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.5338,
+          "bbox": [
+            288.34,
+            335.8,
+            415.47,
+            398.19
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259604064.jpg",
+      "image_timestamp_ms": 1788259604064,
+      "gps": {
+        "latitude": 36.84167350266383,
+        "longitude": 127.18167963926577,
+        "speed_mps": 6.129328767428771,
+        "gps_timestamp_ms": 1788259603998,
+        "time_diff_ms": 66,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259614411.jpg",
+      "image_timestamp_ms": 1788259614411,
+      "gps": {
+        "latitude": 36.842223724641784,
+        "longitude": 127.18240757773667,
+        "speed_mps": 7.678552723390697,
+        "gps_timestamp_ms": 1788259613998,
+        "time_diff_ms": 413,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259624098.jpg",
+      "image_timestamp_ms": 1788259624098,
+      "gps": {
+        "latitude": 36.842556228210775,
+        "longitude": 127.18283097644283,
+        "speed_mps": 3.5054228071104085,
+        "gps_timestamp_ms": 1788259623998,
+        "time_diff_ms": 100,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.191,
+          "bbox": [
+            1566.91,
+            28.16,
+            1766.13,
+            159.17
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259634117.jpg",
+      "image_timestamp_ms": 1788259634117,
+      "gps": {
+        "latitude": 36.842609942712706,
+        "longitude": 127.1831118772117,
+        "speed_mps": 4.345801031127205,
+        "gps_timestamp_ms": 1788259633998,
+        "time_diff_ms": 119,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4483,
+          "bbox": [
+            1673.46,
+            515.05,
+            1968.46,
+            638.31
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.163,
+          "bbox": [
+            1677.99,
+            544.96,
+            1931.49,
+            636.39
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259644131.jpg",
+      "image_timestamp_ms": 1788259644131,
+      "gps": {
+        "latitude": 36.84302430085436,
+        "longitude": 127.1838319452964,
+        "speed_mps": 8.654432602694328,
+        "gps_timestamp_ms": 1788259643998,
+        "time_diff_ms": 133,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1114,
+          "bbox": [
+            0.0,
+            3.56,
+            1188.0,
+            968.81
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259654142.jpg",
+      "image_timestamp_ms": 1788259654142,
+      "gps": {
+        "latitude": 36.84340194058756,
+        "longitude": 127.18455073618944,
+        "speed_mps": 7.468007354147674,
+        "gps_timestamp_ms": 1788259653998,
+        "time_diff_ms": 144,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259665848.jpg",
+      "image_timestamp_ms": 1788259665848,
+      "gps": {
+        "latitude": 36.84368743984502,
+        "longitude": 127.18544421255555,
+        "speed_mps": 6.047531553870015,
+        "gps_timestamp_ms": 1788259665998,
+        "time_diff_ms": 150,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259674167.jpg",
+      "image_timestamp_ms": 1788259674167,
+      "gps": {
+        "latitude": 36.84387222098444,
+        "longitude": 127.18596472983967,
+        "speed_mps": 6.494546539469635,
+        "gps_timestamp_ms": 1788259673998,
+        "time_diff_ms": 169,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1094,
+          "bbox": [
+            0.0,
+            409.56,
+            1670.16,
+            1171.57
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259685805.jpg",
+      "image_timestamp_ms": 1788259685805,
+      "gps": {
+        "latitude": 36.84425179394191,
+        "longitude": 127.18665499574234,
+        "speed_mps": 5.293944111206192,
+        "gps_timestamp_ms": 1788259685998,
+        "time_diff_ms": 193,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4164,
+          "bbox": [
+            253.77,
+            329.87,
+            446.41,
+            410.22
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259694914.jpg",
+      "image_timestamp_ms": 1788259694914,
+      "gps": {
+        "latitude": 36.844486611510945,
+        "longitude": 127.18712075483009,
+        "speed_mps": 5.958852270528164,
+        "gps_timestamp_ms": 1788259694999,
+        "time_diff_ms": 85,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259706113.jpg",
+      "image_timestamp_ms": 1788259706113,
+      "gps": {
+        "latitude": 36.8446874724269,
+        "longitude": 127.1875366658845,
+        "speed_mps": 2.035157891207077,
+        "gps_timestamp_ms": 1788259705999,
+        "time_diff_ms": 114,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1086,
+          "bbox": [
+            832.47,
+            53.89,
+            1001.67,
+            270.57
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259714251.jpg",
+      "image_timestamp_ms": 1788259714251,
+      "gps": {
+        "latitude": 36.84481595309543,
+        "longitude": 127.18784399110328,
+        "speed_mps": 4.731019629897075,
+        "gps_timestamp_ms": 1788259713999,
+        "time_diff_ms": 252,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259724256.jpg",
+      "image_timestamp_ms": 1788259724256,
+      "gps": {
+        "latitude": 36.84504843040439,
+        "longitude": 127.18828958780078,
+        "speed_mps": 4.621251353772759,
+        "gps_timestamp_ms": 1788259723999,
+        "time_diff_ms": 257,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1874,
+          "bbox": [
+            1754.74,
+            827.41,
+            2013.99,
+            908.76
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259736329.jpg",
+      "image_timestamp_ms": 1788259736329,
+      "gps": {
+        "latitude": 36.845514242718664,
+        "longitude": 127.18896605254588,
+        "speed_mps": 5.125017640157227,
+        "gps_timestamp_ms": 1788259735999,
+        "time_diff_ms": 330,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.5314,
+          "bbox": [
+            117.32,
+            356.59,
+            477.95,
+            472.42
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259744288.jpg",
+      "image_timestamp_ms": 1788259744288,
+      "gps": {
+        "latitude": 36.845753368260866,
+        "longitude": 127.18911071342586,
+        "speed_mps": 1.481127959071355,
+        "gps_timestamp_ms": 1788259743999,
+        "time_diff_ms": 289,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259756024.jpg",
+      "image_timestamp_ms": 1788259756024,
+      "gps": {
+        "latitude": 36.84540226804555,
+        "longitude": 127.18877933501562,
+        "speed_mps": 5.265102800424182,
+        "gps_timestamp_ms": 1788259755999,
+        "time_diff_ms": 25,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259764710.jpg",
+      "image_timestamp_ms": 1788259764710,
+      "gps": {
+        "latitude": 36.84511041731576,
+        "longitude": 127.18834045877357,
+        "speed_mps": 5.615815888581831,
+        "gps_timestamp_ms": 1788259764999,
+        "time_diff_ms": 289,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259778144.jpg",
+      "image_timestamp_ms": 1788259778144,
+      "gps": {
+        "latitude": 36.84477583741334,
+        "longitude": 127.18756645535912,
+        "speed_mps": 6.323772594221984,
+        "gps_timestamp_ms": 1788259777998,
+        "time_diff_ms": 146,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.204,
+          "bbox": [
+            1436.71,
+            471.73,
+            2112.0,
+            770.51
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1502,
+          "bbox": [
+            0.0,
+            517.27,
+            1711.1,
+            1183.84
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1146,
+          "bbox": [
+            0.0,
+            506.93,
+            1316.76,
+            836.31
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259786242.jpg",
+      "image_timestamp_ms": 1788259786242,
+      "gps": {
+        "latitude": 36.84453197783914,
+        "longitude": 127.1870771904851,
+        "speed_mps": 6.384576965440672,
+        "gps_timestamp_ms": 1788259785998,
+        "time_diff_ms": 244,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1152,
+          "bbox": [
+            8.55,
+            420.19,
+            797.33,
+            791.22
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259796900.jpg",
+      "image_timestamp_ms": 1788259796900,
+      "gps": {
+        "latitude": 36.844186844863366,
+        "longitude": 127.18644258674662,
+        "speed_mps": 6.20979418830033,
+        "gps_timestamp_ms": 1788259796998,
+        "time_diff_ms": 98,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259804387.jpg",
+      "image_timestamp_ms": 1788259804387,
+      "gps": {
+        "latitude": 36.84394939486518,
+        "longitude": 127.1860185769434,
+        "speed_mps": 6.721093071532631,
+        "gps_timestamp_ms": 1788259803998,
+        "time_diff_ms": 389,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259814412.jpg",
+      "image_timestamp_ms": 1788259814412,
+      "gps": {
+        "latitude": 36.84375778962471,
+        "longitude": 127.18543170863799,
+        "speed_mps": 5.407422663756667,
+        "gps_timestamp_ms": 1788259813998,
+        "time_diff_ms": 414,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259824419.jpg",
+      "image_timestamp_ms": 1788259824419,
+      "gps": {
+        "latitude": 36.843628096453656,
+        "longitude": 127.1848443154645,
+        "speed_mps": 5.575073147771254,
+        "gps_timestamp_ms": 1788259823998,
+        "time_diff_ms": 421,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2463,
+          "bbox": [
+            762.51,
+            411.07,
+            1072.42,
+            593.64
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259834435.jpg",
+      "image_timestamp_ms": 1788259834435,
+      "gps": {
+        "latitude": 36.84328134133696,
+        "longitude": 127.18421934004884,
+        "speed_mps": 7.65051409750184,
+        "gps_timestamp_ms": 1788259833998,
+        "time_diff_ms": 437,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259844457.jpg",
+      "image_timestamp_ms": 1788259844457,
+      "gps": {
+        "latitude": 36.84297477417104,
+        "longitude": 127.18352497959391,
+        "speed_mps": 6.875411370471508,
+        "gps_timestamp_ms": 1788259843998,
+        "time_diff_ms": 459,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2647,
+          "bbox": [
+            0.0,
+            822.53,
+            1671.84,
+            1188.0
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1127,
+          "bbox": [
+            0.0,
+            830.98,
+            1212.31,
+            1170.93
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259854465.jpg",
+      "image_timestamp_ms": 1788259854465,
+      "gps": {
+        "latitude": 36.842719686760674,
+        "longitude": 127.18294558183317,
+        "speed_mps": 5.991014756679572,
+        "gps_timestamp_ms": 1788259853998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2492,
+          "bbox": [
+            0.0,
+            1053.82,
+            226.53,
+            1184.05
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259864486.jpg",
+      "image_timestamp_ms": 1788259864486,
+      "gps": {
+        "latitude": 36.842401491779654,
+        "longitude": 127.18242931833728,
+        "speed_mps": 7.0757302832888325,
+        "gps_timestamp_ms": 1788259863998,
+        "time_diff_ms": 488,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259874499.jpg",
+      "image_timestamp_ms": 1788259874499,
+      "gps": {
+        "latitude": 36.841933229680365,
+        "longitude": 127.18187451963247,
+        "speed_mps": 6.480979259641761,
+        "gps_timestamp_ms": 1788259874998,
+        "time_diff_ms": 499,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259885174.jpg",
+      "image_timestamp_ms": 1788259885174,
+      "gps": {
+        "latitude": 36.84152323229698,
+        "longitude": 127.18133231249791,
+        "speed_mps": 6.7530715831525345,
+        "gps_timestamp_ms": 1788259884998,
+        "time_diff_ms": 176,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2094,
+          "bbox": [
+            1924.8,
+            510.84,
+            2074.75,
+            613.21
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4665,
+          "bbox": [
+            1915.34,
+            260.29,
+            2112.0,
+            333.67
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.4374,
+          "bbox": [
+            91.41,
+            62.52,
+            322.15,
+            116.17
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2812,
+          "bbox": [
+            492.81,
+            44.02,
+            780.12,
+            111.7
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2251,
+          "bbox": [
+            499.32,
+            22.11,
+            780.56,
+            118.4
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1534,
+          "bbox": [
+            2021.83,
+            46.95,
+            2112.0,
+            155.33
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1502,
+          "bbox": [
+            23.79,
+            0.0,
+            324.58,
+            141.16
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259904548.jpg",
+      "image_timestamp_ms": 1788259904548,
+      "gps": {
+        "latitude": 36.84052337425002,
+        "longitude": 127.18029262628853,
+        "speed_mps": 6.982525663571606,
+        "gps_timestamp_ms": 1788259904998,
+        "time_diff_ms": 450,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1568,
+          "bbox": [
+            0.0,
+            0.0,
+            422.07,
+            129.46
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259915726.jpg",
+      "image_timestamp_ms": 1788259915726,
+      "gps": {
+        "latitude": 36.84005828873056,
+        "longitude": 127.17966945496865,
+        "speed_mps": 6.96311876700151,
+        "gps_timestamp_ms": 1788259915998,
+        "time_diff_ms": 272,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259926235.jpg",
+      "image_timestamp_ms": 1788259926235,
+      "gps": {
+        "latitude": 36.83968582815253,
+        "longitude": 127.17893440107116,
+        "speed_mps": 8.54074530911918,
+        "gps_timestamp_ms": 1788259925998,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.8148,
+          "bbox": [
+            1869.35,
+            348.04,
+            2080.59,
+            474.26
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1196,
+          "bbox": [
+            0.08,
+            75.61,
+            94.61,
+            148.77
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.102,
+          "bbox": [
+            1472.6,
+            137.1,
+            1601.89,
+            201.74
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259934597.jpg",
+      "image_timestamp_ms": 1788259934597,
+      "gps": {
+        "latitude": 36.839335184474976,
+        "longitude": 127.17824185982741,
+        "speed_mps": 7.947285659173487,
+        "gps_timestamp_ms": 1788259934998,
+        "time_diff_ms": 401,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259944618.jpg",
+      "image_timestamp_ms": 1788259944618,
+      "gps": {
+        "latitude": 36.838890555695286,
+        "longitude": 127.17751721737073,
+        "speed_mps": 7.934759669700424,
+        "gps_timestamp_ms": 1788259944998,
+        "time_diff_ms": 380,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259956776.jpg",
+      "image_timestamp_ms": 1788259956776,
+      "gps": {
+        "latitude": 36.83859070230115,
+        "longitude": 127.17648592386828,
+        "speed_mps": 8.235639766514865,
+        "gps_timestamp_ms": 1788259956998,
+        "time_diff_ms": 222,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788259964652.jpg",
+      "image_timestamp_ms": 1788259964652,
+      "gps": {
+        "latitude": 36.838558241402886,
+        "longitude": 127.1758439223715,
+        "speed_mps": 7.097206732770735,
+        "gps_timestamp_ms": 1788259964998,
+        "time_diff_ms": 346,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.3117,
+          "bbox": [
+            0.0,
+            0.95,
+            938.65,
+            286.32
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2036,
+          "bbox": [
+            0.0,
+            0.0,
+            153.49,
+            138.8
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259974669.jpg",
+      "image_timestamp_ms": 1788259974669,
+      "gps": {
+        "latitude": 36.83852385855275,
+        "longitude": 127.17544966043235,
+        "speed_mps": 0.2586097413178439,
+        "gps_timestamp_ms": 1788259974998,
+        "time_diff_ms": 329,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1042,
+          "bbox": [
+            1768.21,
+            0.0,
+            2112.0,
+            4.14
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259984684.jpg",
+      "image_timestamp_ms": 1788259984684,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259984998,
+        "time_diff_ms": 314,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1051,
+          "bbox": [
+            1761.39,
+            0.0,
+            2112.0,
+            4.69
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788259994702.jpg",
+      "image_timestamp_ms": 1788259994702,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259994998,
+        "time_diff_ms": 296,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1102,
+          "bbox": [
+            1695.42,
+            0.0,
+            2106.68,
+            5.0
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260004716.jpg",
+      "image_timestamp_ms": 1788260004716,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260004998,
+        "time_diff_ms": 282,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1087,
+          "bbox": [
+            1761.79,
+            0.0,
+            2112.0,
+            4.51
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260014735.jpg",
+      "image_timestamp_ms": 1788260014735,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260014998,
+        "time_diff_ms": 263,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1193,
+          "bbox": [
+            1762.64,
+            0.0,
+            2112.0,
+            4.62
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260024742.jpg",
+      "image_timestamp_ms": 1788260024742,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260024998,
+        "time_diff_ms": 256,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1084,
+          "bbox": [
+            1690.76,
+            0.0,
+            2106.04,
+            5.17
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260034750.jpg",
+      "image_timestamp_ms": 1788260034750,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260034998,
+        "time_diff_ms": 248,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260044782.jpg",
+      "image_timestamp_ms": 1788260044782,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260044998,
+        "time_diff_ms": 216,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260054796.jpg",
+      "image_timestamp_ms": 1788260054796,
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260054998,
+        "time_diff_ms": 202,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260064807.jpg",
+      "image_timestamp_ms": 1788260064807,
+      "gps": {
+        "latitude": 36.838082885587234,
+        "longitude": 127.17574587161539,
+        "speed_mps": 1.9104452853811202,
+        "gps_timestamp_ms": 1788260064998,
+        "time_diff_ms": 191,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260074825.jpg",
+      "image_timestamp_ms": 1788260074825,
+      "gps": {
+        "latitude": 36.83844404892035,
+        "longitude": 127.17464080029609,
+        "speed_mps": 6.908567850491003,
+        "gps_timestamp_ms": 1788260074998,
+        "time_diff_ms": 173,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2557,
+          "bbox": [
+            2053.14,
+            865.95,
+            2112.0,
+            965.07
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260084847.jpg",
+      "image_timestamp_ms": 1788260084847,
+      "gps": {
+        "latitude": 36.83749699805223,
+        "longitude": 127.17423044054159,
+        "speed_mps": 15.299805679608191,
+        "gps_timestamp_ms": 1788260084998,
+        "time_diff_ms": 151,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260094863.jpg",
+      "image_timestamp_ms": 1788260094863,
+      "gps": {
+        "latitude": 36.836109513315854,
+        "longitude": 127.17411578969315,
+        "speed_mps": 14.737924942590713,
+        "gps_timestamp_ms": 1788260094998,
+        "time_diff_ms": 135,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260105863.jpg",
+      "image_timestamp_ms": 1788260105863,
+      "gps": {
+        "latitude": 36.834631047295375,
+        "longitude": 127.17392261096803,
+        "speed_mps": 14.860334921169358,
+        "gps_timestamp_ms": 1788260105998,
+        "time_diff_ms": 135,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260114876.jpg",
+      "image_timestamp_ms": 1788260114876,
+      "gps": {
+        "latitude": 36.833556625281986,
+        "longitude": 127.17344578812924,
+        "speed_mps": 11.714584368954133,
+        "gps_timestamp_ms": 1788260114998,
+        "time_diff_ms": 122,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260124887.jpg",
+      "image_timestamp_ms": 1788260124887,
+      "gps": {
+        "latitude": 36.832544573349,
+        "longitude": 127.17276953961414,
+        "speed_mps": 11.575069796622442,
+        "gps_timestamp_ms": 1788260124998,
+        "time_diff_ms": 111,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260134899.jpg",
+      "image_timestamp_ms": 1788260134899,
+      "gps": {
+        "latitude": 36.8320607802069,
+        "longitude": 127.17240605676209,
+        "speed_mps": 3.061945792254602,
+        "gps_timestamp_ms": 1788260134998,
+        "time_diff_ms": 99,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260146396.jpg",
+      "image_timestamp_ms": 1788260146396,
+      "gps": {
+        "latitude": 36.83166330055279,
+        "longitude": 127.17275882224386,
+        "speed_mps": 7.081884056214855,
+        "gps_timestamp_ms": 1788260145998,
+        "time_diff_ms": 398,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260155034.jpg",
+      "image_timestamp_ms": 1788260155034,
+      "gps": {
+        "latitude": 36.83139767418195,
+        "longitude": 127.17353810127962,
+        "speed_mps": 5.39827812778715,
+        "gps_timestamp_ms": 1788260154998,
+        "time_diff_ms": 36,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260165456.jpg",
+      "image_timestamp_ms": 1788260165456,
+      "gps": {
+        "latitude": 36.8311176154885,
+        "longitude": 127.17428134496218,
+        "speed_mps": 7.220325215384056,
+        "gps_timestamp_ms": 1788260164998,
+        "time_diff_ms": 458,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260174974.jpg",
+      "image_timestamp_ms": 1788260174974,
+      "gps": {
+        "latitude": 36.830846262663144,
+        "longitude": 127.17498013242188,
+        "speed_mps": 7.761754158013942,
+        "gps_timestamp_ms": 1788260174998,
+        "time_diff_ms": 24,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1944,
+          "bbox": [
+            0.0,
+            449.88,
+            359.07,
+            830.88
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1172,
+          "bbox": [
+            235.39,
+            464.95,
+            348.98,
+            507.12
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260184988.jpg",
+      "image_timestamp_ms": 1788260184988,
+      "gps": {
+        "latitude": 36.830607344481436,
+        "longitude": 127.17586016974658,
+        "speed_mps": 9.97115806327612,
+        "gps_timestamp_ms": 1788260184998,
+        "time_diff_ms": 10,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2494,
+          "bbox": [
+            1660.12,
+            347.88,
+            1790.64,
+            424.47
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260195008.jpg",
+      "image_timestamp_ms": 1788260195008,
+      "gps": {
+        "latitude": 36.8306957890893,
+        "longitude": 127.17673797397197,
+        "speed_mps": 7.224399499966922,
+        "gps_timestamp_ms": 1788260194998,
+        "time_diff_ms": 10,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260205023.jpg",
+      "image_timestamp_ms": 1788260205023,
+      "gps": {
+        "latitude": 36.83082924428783,
+        "longitude": 127.17718059287654,
+        "speed_mps": 1.0429707788302907,
+        "gps_timestamp_ms": 1788260204998,
+        "time_diff_ms": 25,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260215039.jpg",
+      "image_timestamp_ms": 1788260215039,
+      "gps": {
+        "latitude": 36.83086512254238,
+        "longitude": 127.17723880182417,
+        "speed_mps": 0.07047394623158529,
+        "gps_timestamp_ms": 1788260214998,
+        "time_diff_ms": 41,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_full",
+          "confidence": 0.1245,
+          "bbox": [
+            6.94,
+            32.37,
+            620.68,
+            903.07
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260225038.jpg",
+      "image_timestamp_ms": 1788260225038,
+      "gps": {
+        "latitude": 36.83087434543328,
+        "longitude": 127.17725049194208,
+        "speed_mps": 0.042650226233378434,
+        "gps_timestamp_ms": 1788260224998,
+        "time_diff_ms": 40,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2612,
+          "bbox": [
+            199.13,
+            436.7,
+            300.72,
+            480.19
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2228,
+          "bbox": [
+            1016.47,
+            975.97,
+            1133.39,
+            1055.92
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260235056.jpg",
+      "image_timestamp_ms": 1788260235056,
+      "gps": {
+        "latitude": 36.83087656930472,
+        "longitude": 127.17725840007833,
+        "speed_mps": 0.06660551910360371,
+        "gps_timestamp_ms": 1788260234998,
+        "time_diff_ms": 58,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.139,
+          "bbox": [
+            236.73,
+            450.5,
+            354.92,
+            503.56
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260245072.jpg",
+      "image_timestamp_ms": 1788260245072,
+      "gps": {
+        "latitude": 36.83087691962226,
+        "longitude": 127.17725964580426,
+        "speed_mps": 0.03791394038967749,
+        "gps_timestamp_ms": 1788260244998,
+        "time_diff_ms": 74,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1216,
+          "bbox": [
+            239.37,
+            447.25,
+            357.9,
+            497.09
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260255084.jpg",
+      "image_timestamp_ms": 1788260255084,
+      "gps": {
+        "latitude": 36.83087721014966,
+        "longitude": 127.17726067893145,
+        "speed_mps": 0.045003137668499144,
+        "gps_timestamp_ms": 1788260254998,
+        "time_diff_ms": 86,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260265105.jpg",
+      "image_timestamp_ms": 1788260265105,
+      "gps": {
+        "latitude": 36.83087635228467,
+        "longitude": 127.1772576283484,
+        "speed_mps": 0.030809400970149545,
+        "gps_timestamp_ms": 1788260264998,
+        "time_diff_ms": 107,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260275114.jpg",
+      "image_timestamp_ms": 1788260275114,
+      "gps": {
+        "latitude": 36.83094217788481,
+        "longitude": 127.17757073240229,
+        "speed_mps": 6.521229120328775,
+        "gps_timestamp_ms": 1788260274998,
+        "time_diff_ms": 116,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.291,
+          "bbox": [
+            504.58,
+            368.56,
+            741.75,
+            478.54
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260285130.jpg",
+      "image_timestamp_ms": 1788260285130,
+      "gps": {
+        "latitude": 36.83089560334433,
+        "longitude": 127.1785211710636,
+        "speed_mps": 9.113709299491356,
+        "gps_timestamp_ms": 1788260284998,
+        "time_diff_ms": 132,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.4663,
+          "bbox": [
+            1665.81,
+            60.95,
+            2112.0,
+            166.84
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.2366,
+          "bbox": [
+            1667.45,
+            75.26,
+            2036.13,
+            158.18
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1332,
+          "bbox": [
+            1610.15,
+            74.55,
+            2112.0,
+            159.85
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1008,
+          "bbox": [
+            1683.48,
+            361.68,
+            1889.67,
+            428.17
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260295471.jpg",
+      "image_timestamp_ms": 1788260295471,
+      "gps": {
+        "latitude": 36.83056293520591,
+        "longitude": 127.17944358079545,
+        "speed_mps": 8.560682867738878,
+        "gps_timestamp_ms": 1788260294998,
+        "time_diff_ms": 473,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.2759,
+          "bbox": [
+            84.81,
+            614.2,
+            157.38,
+            674.75
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.144,
+          "bbox": [
+            0.0,
+            592.44,
+            1689.55,
+            1188.0
+          ]
+        },
+        {
+          "class": "drain_area",
+          "confidence": 0.1437,
+          "bbox": [
+            1903.75,
+            210.21,
+            1976.35,
+            263.19
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260306168.jpg",
+      "image_timestamp_ms": 1788260306168,
+      "gps": {
+        "latitude": 36.83027995540895,
+        "longitude": 127.1797672636663,
+        "speed_mps": 3.60735495455019,
+        "gps_timestamp_ms": 1788260305998,
+        "time_diff_ms": 170,
+        "mapping_status": "matched"
+      },
+      "detections": [
+        {
+          "class": "drain_area",
+          "confidence": 0.1191,
+          "bbox": [
+            1479.47,
+            448.79,
+            1550.46,
+            505.14
+          ]
+        }
+      ]
+    },
+    {
+      "image": "1788260315185.jpg",
+      "image_timestamp_ms": 1788260315185,
+      "gps": {
+        "latitude": 36.82996983364027,
+        "longitude": 127.17946568237414,
+        "speed_mps": 2.906973800040269,
+        "gps_timestamp_ms": 1788260314998,
+        "time_diff_ms": 187,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260325197.jpg",
+      "image_timestamp_ms": 1788260325197,
+      "gps": {
+        "latitude": 36.82985663751662,
+        "longitude": 127.1793556758275,
+        "speed_mps": 2.571755112059437,
+        "gps_timestamp_ms": 1788260324998,
+        "time_diff_ms": 199,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260343533.jpg",
+      "image_timestamp_ms": 1788260343533,
+      "gps": {
+        "latitude": 36.82988034928174,
+        "longitude": 127.179378535098,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260343998,
+        "time_diff_ms": 465,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260345227.jpg",
+      "image_timestamp_ms": 1788260345227,
+      "gps": {
+        "latitude": 36.82988034928174,
+        "longitude": 127.179378535098,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260344998,
+        "time_diff_ms": 229,
+        "mapping_status": "matched"
+      },
+      "detections": []
+    },
+    {
+      "image": "1788260360157.jpg",
+      "image_timestamp_ms": 1788260360157,
+      "gps": {
+        "latitude": 36.82987383901532,
+        "longitude": 127.17937225888797,
+        "speed_mps": 0.11037715875101255,
+        "gps_timestamp_ms": 1788260354998,
+        "time_diff_ms": 5159,
+        "mapping_status": "stale"
+      },
+      "detections": []
+    }
+  ],
+  "detections_detail": [
+    {
+      "image": "1788259383745.jpg",
+      "image_timestamp_ms": 1788259383745,
+      "class": "drain_area",
+      "confidence": 0.3026,
+      "bbox": [
+        1990.39,
+        1027.4,
+        2112.0,
+        1124.97
+      ],
+      "gps": {
+        "latitude": 36.83746484705006,
+        "longitude": 127.18391822595522,
+        "speed_mps": 0.10753323882818222,
+        "gps_timestamp_ms": 1788259384208,
+        "time_diff_ms": 463,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259383745.jpg",
+      "image_timestamp_ms": 1788259383745,
+      "class": "drain_area",
+      "confidence": 0.1678,
+      "bbox": [
+        1994.84,
+        709.08,
+        2089.87,
+        773.06
+      ],
+      "gps": {
+        "latitude": 36.83746484705006,
+        "longitude": 127.18391822595522,
+        "speed_mps": 0.10753323882818222,
+        "gps_timestamp_ms": 1788259384208,
+        "time_diff_ms": 463,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259383745.jpg",
+      "image_timestamp_ms": 1788259383745,
+      "class": "drain_area",
+      "confidence": 0.1426,
+      "bbox": [
+        1840.77,
+        0.0,
+        2112.0,
+        3.28
+      ],
+      "gps": {
+        "latitude": 36.83746484705006,
+        "longitude": 127.18391822595522,
+        "speed_mps": 0.10753323882818222,
+        "gps_timestamp_ms": 1788259384208,
+        "time_diff_ms": 463,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259393729.jpg",
+      "image_timestamp_ms": 1788259393729,
+      "class": "drain_area",
+      "confidence": 0.5313,
+      "bbox": [
+        1318.15,
+        1157.35,
+        1514.45,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259394000,
+        "time_diff_ms": 271,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259393729.jpg",
+      "image_timestamp_ms": 1788259393729,
+      "class": "drain_area",
+      "confidence": 0.3039,
+      "bbox": [
+        2.45,
+        0.0,
+        581.4,
+        457.03
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259394000,
+        "time_diff_ms": 271,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259393729.jpg",
+      "image_timestamp_ms": 1788259393729,
+      "class": "drain_area",
+      "confidence": 0.1253,
+      "bbox": [
+        0.0,
+        193.28,
+        1791.1,
+        1120.08
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259394000,
+        "time_diff_ms": 271,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259403739.jpg",
+      "image_timestamp_ms": 1788259403739,
+      "class": "drain_area",
+      "confidence": 0.4171,
+      "bbox": [
+        1319.56,
+        1157.89,
+        1509.28,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259403999,
+        "time_diff_ms": 260,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259413762.jpg",
+      "image_timestamp_ms": 1788259413762,
+      "class": "drain_area",
+      "confidence": 0.5298,
+      "bbox": [
+        1319.38,
+        1157.6,
+        1510.91,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259413999,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259423778.jpg",
+      "image_timestamp_ms": 1788259423778,
+      "class": "drain_area",
+      "confidence": 0.4403,
+      "bbox": [
+        1321.64,
+        1157.72,
+        1507.86,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259423999,
+        "time_diff_ms": 221,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259433787.jpg",
+      "image_timestamp_ms": 1788259433787,
+      "class": "drain_area",
+      "confidence": 0.4583,
+      "bbox": [
+        1318.4,
+        1158.4,
+        1510.61,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.837477530208616,
+        "longitude": 127.18393318354511,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259433999,
+        "time_diff_ms": 212,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259443811.jpg",
+      "image_timestamp_ms": 1788259443811,
+      "class": "drain_area",
+      "confidence": 0.4786,
+      "bbox": [
+        1318.55,
+        1157.36,
+        1513.21,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.8374828632394,
+        "longitude": 127.18392365581482,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259443999,
+        "time_diff_ms": 188,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259454627.jpg",
+      "image_timestamp_ms": 1788259454627,
+      "class": "drain_area",
+      "confidence": 0.2723,
+      "bbox": [
+        1263.71,
+        518.74,
+        1537.21,
+        634.91
+      ],
+      "gps": {
+        "latitude": 36.83748270843743,
+        "longitude": 127.1839245672122,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259454998,
+        "time_diff_ms": 371,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.9271,
+      "bbox": [
+        1370.28,
+        600.45,
+        1475.7,
+        649.36
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.4189,
+      "bbox": [
+        1216.94,
+        387.77,
+        1318.51,
+        462.02
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.3626,
+      "bbox": [
+        1293.15,
+        731.82,
+        1402.6,
+        779.35
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.2522,
+      "bbox": [
+        1778.3,
+        454.94,
+        2109.4,
+        634.27
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.1383,
+      "bbox": [
+        1180.81,
+        614.5,
+        1267.04,
+        667.63
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.1169,
+      "bbox": [
+        444.81,
+        706.86,
+        744.1,
+        759.59
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259473853.jpg",
+      "image_timestamp_ms": 1788259473853,
+      "class": "drain_area",
+      "confidence": 0.1081,
+      "bbox": [
+        554.43,
+        707.89,
+        705.59,
+        757.97
+      ],
+      "gps": {
+        "latitude": 36.837643996161006,
+        "longitude": 127.18341061815927,
+        "speed_mps": 4.446062588789236,
+        "gps_timestamp_ms": 1788259473998,
+        "time_diff_ms": 145,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259513922.jpg",
+      "image_timestamp_ms": 1788259513922,
+      "class": "drain_area",
+      "confidence": 0.1074,
+      "bbox": [
+        0.35,
+        22.35,
+        69.94,
+        116.14
+      ],
+      "gps": {
+        "latitude": 36.83879158152618,
+        "longitude": 127.18165731146463,
+        "speed_mps": 5.448890978490651,
+        "gps_timestamp_ms": 1788259513998,
+        "time_diff_ms": 76,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259523939.jpg",
+      "image_timestamp_ms": 1788259523939,
+      "class": "drain_area",
+      "confidence": 0.1913,
+      "bbox": [
+        1650.41,
+        614.93,
+        1785.36,
+        672.47
+      ],
+      "gps": {
+        "latitude": 36.839156086847616,
+        "longitude": 127.18185400541235,
+        "speed_mps": 4.630811598436111,
+        "gps_timestamp_ms": 1788259523998,
+        "time_diff_ms": 59,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259543962.jpg",
+      "image_timestamp_ms": 1788259543962,
+      "class": "drain_area",
+      "confidence": 0.1296,
+      "bbox": [
+        609.91,
+        733.84,
+        729.64,
+        842.65
+      ],
+      "gps": {
+        "latitude": 36.83977298990574,
+        "longitude": 127.18070853274686,
+        "speed_mps": 6.48192607620271,
+        "gps_timestamp_ms": 1788259543998,
+        "time_diff_ms": 36,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259543962.jpg",
+      "image_timestamp_ms": 1788259543962,
+      "class": "drain_area",
+      "confidence": 0.1233,
+      "bbox": [
+        610.55,
+        468.01,
+        750.23,
+        583.65
+      ],
+      "gps": {
+        "latitude": 36.83977298990574,
+        "longitude": 127.18070853274686,
+        "speed_mps": 6.48192607620271,
+        "gps_timestamp_ms": 1788259543998,
+        "time_diff_ms": 36,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259594154.jpg",
+      "image_timestamp_ms": 1788259594154,
+      "class": "drain_area",
+      "confidence": 0.5338,
+      "bbox": [
+        288.34,
+        335.8,
+        415.47,
+        398.19
+      ],
+      "gps": {
+        "latitude": 36.84118893718467,
+        "longitude": 127.18117251013555,
+        "speed_mps": 5.644146387655362,
+        "gps_timestamp_ms": 1788259593998,
+        "time_diff_ms": 156,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259624098.jpg",
+      "image_timestamp_ms": 1788259624098,
+      "class": "drain_area",
+      "confidence": 0.191,
+      "bbox": [
+        1566.91,
+        28.16,
+        1766.13,
+        159.17
+      ],
+      "gps": {
+        "latitude": 36.842556228210775,
+        "longitude": 127.18283097644283,
+        "speed_mps": 3.5054228071104085,
+        "gps_timestamp_ms": 1788259623998,
+        "time_diff_ms": 100,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259634117.jpg",
+      "image_timestamp_ms": 1788259634117,
+      "class": "drain_area",
+      "confidence": 0.4483,
+      "bbox": [
+        1673.46,
+        515.05,
+        1968.46,
+        638.31
+      ],
+      "gps": {
+        "latitude": 36.842609942712706,
+        "longitude": 127.1831118772117,
+        "speed_mps": 4.345801031127205,
+        "gps_timestamp_ms": 1788259633998,
+        "time_diff_ms": 119,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259634117.jpg",
+      "image_timestamp_ms": 1788259634117,
+      "class": "drain_area",
+      "confidence": 0.163,
+      "bbox": [
+        1677.99,
+        544.96,
+        1931.49,
+        636.39
+      ],
+      "gps": {
+        "latitude": 36.842609942712706,
+        "longitude": 127.1831118772117,
+        "speed_mps": 4.345801031127205,
+        "gps_timestamp_ms": 1788259633998,
+        "time_diff_ms": 119,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259644131.jpg",
+      "image_timestamp_ms": 1788259644131,
+      "class": "drain_area",
+      "confidence": 0.1114,
+      "bbox": [
+        0.0,
+        3.56,
+        1188.0,
+        968.81
+      ],
+      "gps": {
+        "latitude": 36.84302430085436,
+        "longitude": 127.1838319452964,
+        "speed_mps": 8.654432602694328,
+        "gps_timestamp_ms": 1788259643998,
+        "time_diff_ms": 133,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259674167.jpg",
+      "image_timestamp_ms": 1788259674167,
+      "class": "drain_area",
+      "confidence": 0.1094,
+      "bbox": [
+        0.0,
+        409.56,
+        1670.16,
+        1171.57
+      ],
+      "gps": {
+        "latitude": 36.84387222098444,
+        "longitude": 127.18596472983967,
+        "speed_mps": 6.494546539469635,
+        "gps_timestamp_ms": 1788259673998,
+        "time_diff_ms": 169,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259685805.jpg",
+      "image_timestamp_ms": 1788259685805,
+      "class": "drain_area",
+      "confidence": 0.4164,
+      "bbox": [
+        253.77,
+        329.87,
+        446.41,
+        410.22
+      ],
+      "gps": {
+        "latitude": 36.84425179394191,
+        "longitude": 127.18665499574234,
+        "speed_mps": 5.293944111206192,
+        "gps_timestamp_ms": 1788259685998,
+        "time_diff_ms": 193,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259706113.jpg",
+      "image_timestamp_ms": 1788259706113,
+      "class": "drain_area",
+      "confidence": 0.1086,
+      "bbox": [
+        832.47,
+        53.89,
+        1001.67,
+        270.57
+      ],
+      "gps": {
+        "latitude": 36.8446874724269,
+        "longitude": 127.1875366658845,
+        "speed_mps": 2.035157891207077,
+        "gps_timestamp_ms": 1788259705999,
+        "time_diff_ms": 114,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259724256.jpg",
+      "image_timestamp_ms": 1788259724256,
+      "class": "drain_area",
+      "confidence": 0.1874,
+      "bbox": [
+        1754.74,
+        827.41,
+        2013.99,
+        908.76
+      ],
+      "gps": {
+        "latitude": 36.84504843040439,
+        "longitude": 127.18828958780078,
+        "speed_mps": 4.621251353772759,
+        "gps_timestamp_ms": 1788259723999,
+        "time_diff_ms": 257,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259736329.jpg",
+      "image_timestamp_ms": 1788259736329,
+      "class": "drain_area",
+      "confidence": 0.5314,
+      "bbox": [
+        117.32,
+        356.59,
+        477.95,
+        472.42
+      ],
+      "gps": {
+        "latitude": 36.845514242718664,
+        "longitude": 127.18896605254588,
+        "speed_mps": 5.125017640157227,
+        "gps_timestamp_ms": 1788259735999,
+        "time_diff_ms": 330,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259778144.jpg",
+      "image_timestamp_ms": 1788259778144,
+      "class": "drain_area",
+      "confidence": 0.204,
+      "bbox": [
+        1436.71,
+        471.73,
+        2112.0,
+        770.51
+      ],
+      "gps": {
+        "latitude": 36.84477583741334,
+        "longitude": 127.18756645535912,
+        "speed_mps": 6.323772594221984,
+        "gps_timestamp_ms": 1788259777998,
+        "time_diff_ms": 146,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259778144.jpg",
+      "image_timestamp_ms": 1788259778144,
+      "class": "drain_area",
+      "confidence": 0.1502,
+      "bbox": [
+        0.0,
+        517.27,
+        1711.1,
+        1183.84
+      ],
+      "gps": {
+        "latitude": 36.84477583741334,
+        "longitude": 127.18756645535912,
+        "speed_mps": 6.323772594221984,
+        "gps_timestamp_ms": 1788259777998,
+        "time_diff_ms": 146,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259778144.jpg",
+      "image_timestamp_ms": 1788259778144,
+      "class": "drain_area",
+      "confidence": 0.1146,
+      "bbox": [
+        0.0,
+        506.93,
+        1316.76,
+        836.31
+      ],
+      "gps": {
+        "latitude": 36.84477583741334,
+        "longitude": 127.18756645535912,
+        "speed_mps": 6.323772594221984,
+        "gps_timestamp_ms": 1788259777998,
+        "time_diff_ms": 146,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259786242.jpg",
+      "image_timestamp_ms": 1788259786242,
+      "class": "drain_area",
+      "confidence": 0.1152,
+      "bbox": [
+        8.55,
+        420.19,
+        797.33,
+        791.22
+      ],
+      "gps": {
+        "latitude": 36.84453197783914,
+        "longitude": 127.1870771904851,
+        "speed_mps": 6.384576965440672,
+        "gps_timestamp_ms": 1788259785998,
+        "time_diff_ms": 244,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259824419.jpg",
+      "image_timestamp_ms": 1788259824419,
+      "class": "drain_area",
+      "confidence": 0.2463,
+      "bbox": [
+        762.51,
+        411.07,
+        1072.42,
+        593.64
+      ],
+      "gps": {
+        "latitude": 36.843628096453656,
+        "longitude": 127.1848443154645,
+        "speed_mps": 5.575073147771254,
+        "gps_timestamp_ms": 1788259823998,
+        "time_diff_ms": 421,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259844457.jpg",
+      "image_timestamp_ms": 1788259844457,
+      "class": "drain_area",
+      "confidence": 0.2647,
+      "bbox": [
+        0.0,
+        822.53,
+        1671.84,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.84297477417104,
+        "longitude": 127.18352497959391,
+        "speed_mps": 6.875411370471508,
+        "gps_timestamp_ms": 1788259843998,
+        "time_diff_ms": 459,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259844457.jpg",
+      "image_timestamp_ms": 1788259844457,
+      "class": "drain_area",
+      "confidence": 0.1127,
+      "bbox": [
+        0.0,
+        830.98,
+        1212.31,
+        1170.93
+      ],
+      "gps": {
+        "latitude": 36.84297477417104,
+        "longitude": 127.18352497959391,
+        "speed_mps": 6.875411370471508,
+        "gps_timestamp_ms": 1788259843998,
+        "time_diff_ms": 459,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259854465.jpg",
+      "image_timestamp_ms": 1788259854465,
+      "class": "drain_area",
+      "confidence": 0.2492,
+      "bbox": [
+        0.0,
+        1053.82,
+        226.53,
+        1184.05
+      ],
+      "gps": {
+        "latitude": 36.842719686760674,
+        "longitude": 127.18294558183317,
+        "speed_mps": 5.991014756679572,
+        "gps_timestamp_ms": 1788259853998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259885174.jpg",
+      "image_timestamp_ms": 1788259885174,
+      "class": "drain_area",
+      "confidence": 0.2094,
+      "bbox": [
+        1924.8,
+        510.84,
+        2074.75,
+        613.21
+      ],
+      "gps": {
+        "latitude": 36.84152323229698,
+        "longitude": 127.18133231249791,
+        "speed_mps": 6.7530715831525345,
+        "gps_timestamp_ms": 1788259884998,
+        "time_diff_ms": 176,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.4665,
+      "bbox": [
+        1915.34,
+        260.29,
+        2112.0,
+        333.67
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.4374,
+      "bbox": [
+        91.41,
+        62.52,
+        322.15,
+        116.17
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.2812,
+      "bbox": [
+        492.81,
+        44.02,
+        780.12,
+        111.7
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.2251,
+      "bbox": [
+        499.32,
+        22.11,
+        780.56,
+        118.4
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.1534,
+      "bbox": [
+        2021.83,
+        46.95,
+        2112.0,
+        155.33
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259894531.jpg",
+      "image_timestamp_ms": 1788259894531,
+      "class": "drain_area",
+      "confidence": 0.1502,
+      "bbox": [
+        23.79,
+        0.0,
+        324.58,
+        141.16
+      ],
+      "gps": {
+        "latitude": 36.841022032782256,
+        "longitude": 127.18080757818926,
+        "speed_mps": 7.477947187377569,
+        "gps_timestamp_ms": 1788259894998,
+        "time_diff_ms": 467,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259904548.jpg",
+      "image_timestamp_ms": 1788259904548,
+      "class": "drain_area",
+      "confidence": 0.1568,
+      "bbox": [
+        0.0,
+        0.0,
+        422.07,
+        129.46
+      ],
+      "gps": {
+        "latitude": 36.84052337425002,
+        "longitude": 127.18029262628853,
+        "speed_mps": 6.982525663571606,
+        "gps_timestamp_ms": 1788259904998,
+        "time_diff_ms": 450,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259926235.jpg",
+      "image_timestamp_ms": 1788259926235,
+      "class": "drain_area",
+      "confidence": 0.8148,
+      "bbox": [
+        1869.35,
+        348.04,
+        2080.59,
+        474.26
+      ],
+      "gps": {
+        "latitude": 36.83968582815253,
+        "longitude": 127.17893440107116,
+        "speed_mps": 8.54074530911918,
+        "gps_timestamp_ms": 1788259925998,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259926235.jpg",
+      "image_timestamp_ms": 1788259926235,
+      "class": "drain_area",
+      "confidence": 0.1196,
+      "bbox": [
+        0.08,
+        75.61,
+        94.61,
+        148.77
+      ],
+      "gps": {
+        "latitude": 36.83968582815253,
+        "longitude": 127.17893440107116,
+        "speed_mps": 8.54074530911918,
+        "gps_timestamp_ms": 1788259925998,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259926235.jpg",
+      "image_timestamp_ms": 1788259926235,
+      "class": "drain_area",
+      "confidence": 0.102,
+      "bbox": [
+        1472.6,
+        137.1,
+        1601.89,
+        201.74
+      ],
+      "gps": {
+        "latitude": 36.83968582815253,
+        "longitude": 127.17893440107116,
+        "speed_mps": 8.54074530911918,
+        "gps_timestamp_ms": 1788259925998,
+        "time_diff_ms": 237,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259964652.jpg",
+      "image_timestamp_ms": 1788259964652,
+      "class": "drain_area",
+      "confidence": 0.3117,
+      "bbox": [
+        0.0,
+        0.95,
+        938.65,
+        286.32
+      ],
+      "gps": {
+        "latitude": 36.838558241402886,
+        "longitude": 127.1758439223715,
+        "speed_mps": 7.097206732770735,
+        "gps_timestamp_ms": 1788259964998,
+        "time_diff_ms": 346,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259964652.jpg",
+      "image_timestamp_ms": 1788259964652,
+      "class": "drain_area",
+      "confidence": 0.2036,
+      "bbox": [
+        0.0,
+        0.0,
+        153.49,
+        138.8
+      ],
+      "gps": {
+        "latitude": 36.838558241402886,
+        "longitude": 127.1758439223715,
+        "speed_mps": 7.097206732770735,
+        "gps_timestamp_ms": 1788259964998,
+        "time_diff_ms": 346,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259974669.jpg",
+      "image_timestamp_ms": 1788259974669,
+      "class": "drain_area",
+      "confidence": 0.1042,
+      "bbox": [
+        1768.21,
+        0.0,
+        2112.0,
+        4.14
+      ],
+      "gps": {
+        "latitude": 36.83852385855275,
+        "longitude": 127.17544966043235,
+        "speed_mps": 0.2586097413178439,
+        "gps_timestamp_ms": 1788259974998,
+        "time_diff_ms": 329,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259984684.jpg",
+      "image_timestamp_ms": 1788259984684,
+      "class": "drain_area",
+      "confidence": 0.1051,
+      "bbox": [
+        1761.39,
+        0.0,
+        2112.0,
+        4.69
+      ],
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259984998,
+        "time_diff_ms": 314,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788259994702.jpg",
+      "image_timestamp_ms": 1788259994702,
+      "class": "drain_area",
+      "confidence": 0.1102,
+      "bbox": [
+        1695.42,
+        0.0,
+        2106.68,
+        5.0
+      ],
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788259994998,
+        "time_diff_ms": 296,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260004716.jpg",
+      "image_timestamp_ms": 1788260004716,
+      "class": "drain_area",
+      "confidence": 0.1087,
+      "bbox": [
+        1761.79,
+        0.0,
+        2112.0,
+        4.51
+      ],
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260004998,
+        "time_diff_ms": 282,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260014735.jpg",
+      "image_timestamp_ms": 1788260014735,
+      "class": "drain_area",
+      "confidence": 0.1193,
+      "bbox": [
+        1762.64,
+        0.0,
+        2112.0,
+        4.62
+      ],
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260014998,
+        "time_diff_ms": 263,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260024742.jpg",
+      "image_timestamp_ms": 1788260024742,
+      "class": "drain_area",
+      "confidence": 0.1084,
+      "bbox": [
+        1690.76,
+        0.0,
+        2106.04,
+        5.17
+      ],
+      "gps": {
+        "latitude": 36.83852422648773,
+        "longitude": 127.1754491039419,
+        "speed_mps": 0.0,
+        "gps_timestamp_ms": 1788260024998,
+        "time_diff_ms": 256,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260074825.jpg",
+      "image_timestamp_ms": 1788260074825,
+      "class": "drain_area",
+      "confidence": 0.2557,
+      "bbox": [
+        2053.14,
+        865.95,
+        2112.0,
+        965.07
+      ],
+      "gps": {
+        "latitude": 36.83844404892035,
+        "longitude": 127.17464080029609,
+        "speed_mps": 6.908567850491003,
+        "gps_timestamp_ms": 1788260074998,
+        "time_diff_ms": 173,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260174974.jpg",
+      "image_timestamp_ms": 1788260174974,
+      "class": "drain_area",
+      "confidence": 0.1944,
+      "bbox": [
+        0.0,
+        449.88,
+        359.07,
+        830.88
+      ],
+      "gps": {
+        "latitude": 36.830846262663144,
+        "longitude": 127.17498013242188,
+        "speed_mps": 7.761754158013942,
+        "gps_timestamp_ms": 1788260174998,
+        "time_diff_ms": 24,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260174974.jpg",
+      "image_timestamp_ms": 1788260174974,
+      "class": "drain_area",
+      "confidence": 0.1172,
+      "bbox": [
+        235.39,
+        464.95,
+        348.98,
+        507.12
+      ],
+      "gps": {
+        "latitude": 36.830846262663144,
+        "longitude": 127.17498013242188,
+        "speed_mps": 7.761754158013942,
+        "gps_timestamp_ms": 1788260174998,
+        "time_diff_ms": 24,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260184988.jpg",
+      "image_timestamp_ms": 1788260184988,
+      "class": "drain_area",
+      "confidence": 0.2494,
+      "bbox": [
+        1660.12,
+        347.88,
+        1790.64,
+        424.47
+      ],
+      "gps": {
+        "latitude": 36.830607344481436,
+        "longitude": 127.17586016974658,
+        "speed_mps": 9.97115806327612,
+        "gps_timestamp_ms": 1788260184998,
+        "time_diff_ms": 10,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260215039.jpg",
+      "image_timestamp_ms": 1788260215039,
+      "class": "drain_full",
+      "confidence": 0.1245,
+      "bbox": [
+        6.94,
+        32.37,
+        620.68,
+        903.07
+      ],
+      "gps": {
+        "latitude": 36.83086512254238,
+        "longitude": 127.17723880182417,
+        "speed_mps": 0.07047394623158529,
+        "gps_timestamp_ms": 1788260214998,
+        "time_diff_ms": 41,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260225038.jpg",
+      "image_timestamp_ms": 1788260225038,
+      "class": "drain_area",
+      "confidence": 0.2612,
+      "bbox": [
+        199.13,
+        436.7,
+        300.72,
+        480.19
+      ],
+      "gps": {
+        "latitude": 36.83087434543328,
+        "longitude": 127.17725049194208,
+        "speed_mps": 0.042650226233378434,
+        "gps_timestamp_ms": 1788260224998,
+        "time_diff_ms": 40,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260225038.jpg",
+      "image_timestamp_ms": 1788260225038,
+      "class": "drain_area",
+      "confidence": 0.2228,
+      "bbox": [
+        1016.47,
+        975.97,
+        1133.39,
+        1055.92
+      ],
+      "gps": {
+        "latitude": 36.83087434543328,
+        "longitude": 127.17725049194208,
+        "speed_mps": 0.042650226233378434,
+        "gps_timestamp_ms": 1788260224998,
+        "time_diff_ms": 40,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260235056.jpg",
+      "image_timestamp_ms": 1788260235056,
+      "class": "drain_area",
+      "confidence": 0.139,
+      "bbox": [
+        236.73,
+        450.5,
+        354.92,
+        503.56
+      ],
+      "gps": {
+        "latitude": 36.83087656930472,
+        "longitude": 127.17725840007833,
+        "speed_mps": 0.06660551910360371,
+        "gps_timestamp_ms": 1788260234998,
+        "time_diff_ms": 58,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260245072.jpg",
+      "image_timestamp_ms": 1788260245072,
+      "class": "drain_area",
+      "confidence": 0.1216,
+      "bbox": [
+        239.37,
+        447.25,
+        357.9,
+        497.09
+      ],
+      "gps": {
+        "latitude": 36.83087691962226,
+        "longitude": 127.17725964580426,
+        "speed_mps": 0.03791394038967749,
+        "gps_timestamp_ms": 1788260244998,
+        "time_diff_ms": 74,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260275114.jpg",
+      "image_timestamp_ms": 1788260275114,
+      "class": "drain_area",
+      "confidence": 0.291,
+      "bbox": [
+        504.58,
+        368.56,
+        741.75,
+        478.54
+      ],
+      "gps": {
+        "latitude": 36.83094217788481,
+        "longitude": 127.17757073240229,
+        "speed_mps": 6.521229120328775,
+        "gps_timestamp_ms": 1788260274998,
+        "time_diff_ms": 116,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260285130.jpg",
+      "image_timestamp_ms": 1788260285130,
+      "class": "drain_area",
+      "confidence": 0.4663,
+      "bbox": [
+        1665.81,
+        60.95,
+        2112.0,
+        166.84
+      ],
+      "gps": {
+        "latitude": 36.83089560334433,
+        "longitude": 127.1785211710636,
+        "speed_mps": 9.113709299491356,
+        "gps_timestamp_ms": 1788260284998,
+        "time_diff_ms": 132,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260285130.jpg",
+      "image_timestamp_ms": 1788260285130,
+      "class": "drain_area",
+      "confidence": 0.2366,
+      "bbox": [
+        1667.45,
+        75.26,
+        2036.13,
+        158.18
+      ],
+      "gps": {
+        "latitude": 36.83089560334433,
+        "longitude": 127.1785211710636,
+        "speed_mps": 9.113709299491356,
+        "gps_timestamp_ms": 1788260284998,
+        "time_diff_ms": 132,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260285130.jpg",
+      "image_timestamp_ms": 1788260285130,
+      "class": "drain_area",
+      "confidence": 0.1332,
+      "bbox": [
+        1610.15,
+        74.55,
+        2112.0,
+        159.85
+      ],
+      "gps": {
+        "latitude": 36.83089560334433,
+        "longitude": 127.1785211710636,
+        "speed_mps": 9.113709299491356,
+        "gps_timestamp_ms": 1788260284998,
+        "time_diff_ms": 132,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260285130.jpg",
+      "image_timestamp_ms": 1788260285130,
+      "class": "drain_area",
+      "confidence": 0.1008,
+      "bbox": [
+        1683.48,
+        361.68,
+        1889.67,
+        428.17
+      ],
+      "gps": {
+        "latitude": 36.83089560334433,
+        "longitude": 127.1785211710636,
+        "speed_mps": 9.113709299491356,
+        "gps_timestamp_ms": 1788260284998,
+        "time_diff_ms": 132,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260295471.jpg",
+      "image_timestamp_ms": 1788260295471,
+      "class": "drain_area",
+      "confidence": 0.2759,
+      "bbox": [
+        84.81,
+        614.2,
+        157.38,
+        674.75
+      ],
+      "gps": {
+        "latitude": 36.83056293520591,
+        "longitude": 127.17944358079545,
+        "speed_mps": 8.560682867738878,
+        "gps_timestamp_ms": 1788260294998,
+        "time_diff_ms": 473,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260295471.jpg",
+      "image_timestamp_ms": 1788260295471,
+      "class": "drain_area",
+      "confidence": 0.144,
+      "bbox": [
+        0.0,
+        592.44,
+        1689.55,
+        1188.0
+      ],
+      "gps": {
+        "latitude": 36.83056293520591,
+        "longitude": 127.17944358079545,
+        "speed_mps": 8.560682867738878,
+        "gps_timestamp_ms": 1788260294998,
+        "time_diff_ms": 473,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260295471.jpg",
+      "image_timestamp_ms": 1788260295471,
+      "class": "drain_area",
+      "confidence": 0.1437,
+      "bbox": [
+        1903.75,
+        210.21,
+        1976.35,
+        263.19
+      ],
+      "gps": {
+        "latitude": 36.83056293520591,
+        "longitude": 127.17944358079545,
+        "speed_mps": 8.560682867738878,
+        "gps_timestamp_ms": 1788260294998,
+        "time_diff_ms": 473,
+        "mapping_status": "matched"
+      }
+    },
+    {
+      "image": "1788260306168.jpg",
+      "image_timestamp_ms": 1788260306168,
+      "class": "drain_area",
+      "confidence": 0.1191,
+      "bbox": [
+        1479.47,
+        448.79,
+        1550.46,
+        505.14
+      ],
+      "gps": {
+        "latitude": 36.83027995540895,
+        "longitude": 127.1797672636663,
+        "speed_mps": 3.60735495455019,
+        "gps_timestamp_ms": 1788260305998,
+        "time_diff_ms": 170,
+        "mapping_status": "matched"
+      }
+    }
+  ]
+}

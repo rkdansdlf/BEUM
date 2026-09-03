@@ -1,0 +1,1069 @@
+[
+  {
+    "image": "1788259383745.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259393729.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          0.0,
+          0.0,
+          604.02,
+          1188.0
+        ],
+        "conf": 0.10195468366146088
+      }
+    ],
+    "drain_full_count": 1,
+    "drain_area_count": 0,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259403739.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259413762.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259423778.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259433787.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259443811.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259454627.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          764.15,
+          385.04,
+          2014.34,
+          1051.47
+        ],
+        "conf": 0.2164619117975235
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259463842.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259473853.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259483874.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259493885.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259506557.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259513922.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259523939.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259533959.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259543962.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259553981.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259564776.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259574020.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259584036.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259594154.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          209.79,
+          0.0,
+          1339.74,
+          234.12
+        ],
+        "conf": 0.342932790517807
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          142.41,
+          0.0,
+          1440.8,
+          60.95
+        ],
+        "conf": 0.21641752123832703
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 2,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788259604064.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259614411.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259624098.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259634117.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259644131.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259654142.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259665848.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259674167.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259685805.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259694914.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          0.0,
+          0.0,
+          1647.57,
+          1188.0
+        ],
+        "conf": 0.27506381273269653
+      },
+      {
+        "class": "drain_full",
+        "bbox": [
+          0.0,
+          181.72,
+          1658.3,
+          1188.0
+        ],
+        "conf": 0.1267472207546234
+      }
+    ],
+    "drain_full_count": 2,
+    "drain_area_count": 0,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788259706113.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.0,
+          587.42,
+          1671.34,
+          1094.38
+        ],
+        "conf": 0.23110991716384888
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259714251.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259724256.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259736329.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.0,
+          0.0,
+          1337.73,
+          405.2
+        ],
+        "conf": 0.24858859181404114
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259744288.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259756024.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259764710.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259778144.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259786242.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259796900.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259804387.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259814412.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259824419.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259834435.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259844457.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          8.0,
+          960.75,
+          1267.38,
+          1188.0
+        ],
+        "conf": 0.3017001748085022
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          9.26,
+          824.67,
+          1293.5,
+          1188.0
+        ],
+        "conf": 0.20233164727687836
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 2,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788259854465.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259864486.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259874499.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259885174.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          11.59,
+          265.22,
+          1077.25,
+          700.2
+        ],
+        "conf": 0.3115108013153076
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259894531.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259904548.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          1639.38,
+          876.4,
+          2112.0,
+          972.24
+        ],
+        "conf": 0.7540907263755798
+      }
+    ],
+    "drain_full_count": 1,
+    "drain_area_count": 0,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259915726.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259926235.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          331.67,
+          770.54,
+          1781.19,
+          1187.37
+        ],
+        "conf": 0.3538416028022766
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          428.76,
+          858.69,
+          1841.05,
+          1188.0
+        ],
+        "conf": 0.24353325366973877
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          334.06,
+          372.61,
+          1761.08,
+          1188.0
+        ],
+        "conf": 0.22095456719398499
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 3,
+    "filtered_count": 3
+  },
+  {
+    "image": "1788259934597.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          6.27,
+          450.08,
+          1320.79,
+          907.38
+        ],
+        "conf": 0.2509887218475342
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259944618.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259956776.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.0,
+          0.0,
+          1280.12,
+          307.41
+        ],
+        "conf": 0.3959301710128784
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259964652.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          52.12,
+          0.0,
+          1188.0,
+          1407.26
+        ],
+        "conf": 0.28100043535232544
+      },
+      {
+        "class": "drain_full",
+        "bbox": [
+          419.88,
+          0.0,
+          1188.0,
+          1172.55
+        ],
+        "conf": 0.170756533741951
+      }
+    ],
+    "drain_full_count": 2,
+    "drain_area_count": 0,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788259974669.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.93,
+          508.66,
+          1324.18,
+          972.05
+        ],
+        "conf": 0.2698938846588135
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788259984684.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788259994702.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          1906.38,
+          893.54,
+          2109.41,
+          931.65
+        ],
+        "conf": 0.2241516411304474
+      }
+    ],
+    "drain_full_count": 1,
+    "drain_area_count": 0,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788260004716.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.0,
+          791.4,
+          706.71,
+          901.82
+        ],
+        "conf": 0.3817245066165924
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788260014735.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260024742.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          1892.54,
+          894.65,
+          2109.35,
+          930.43
+        ],
+        "conf": 0.11541805416345596
+      }
+    ],
+    "drain_full_count": 1,
+    "drain_area_count": 0,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788260034750.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260044782.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260054796.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260064807.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260074825.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260084847.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260094863.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260105863.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260114876.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260124887.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260134899.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260146396.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260155034.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260165456.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260174974.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260184988.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          331.49,
+          802.51,
+          1802.35,
+          1034.59
+        ],
+        "conf": 0.45677629113197327
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          322.16,
+          0.0,
+          1858.4,
+          205.08
+        ],
+        "conf": 0.45475128293037415
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          372.27,
+          461.46,
+          1754.45,
+          1055.24
+        ],
+        "conf": 0.33093950152397156
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          654.32,
+          679.99,
+          2112.0,
+          1113.72
+        ],
+        "conf": 0.3198654353618622
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          106.2,
+          0.0,
+          1752.7,
+          280.28
+        ],
+        "conf": 0.30676183104515076
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          784.58,
+          773.68,
+          2101.94,
+          1125.57
+        ],
+        "conf": 0.26724210381507874
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.0,
+          0.0,
+          1419.89,
+          370.81
+        ],
+        "conf": 0.2607550323009491
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          551.8,
+          433.25,
+          2112.0,
+          1114.42
+        ],
+        "conf": 0.2091238796710968
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 8,
+    "filtered_count": 8
+  },
+  {
+    "image": "1788260195008.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          0.9,
+          248.84,
+          1306.42,
+          1078.05
+        ],
+        "conf": 0.3351410925388336
+      },
+      {
+        "class": "drain_area",
+        "bbox": [
+          13.72,
+          1006.2,
+          652.41,
+          1095.94
+        ],
+        "conf": 0.21218189597129822
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 2,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788260205023.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260215039.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260225038.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260235056.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260245072.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260255084.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260265105.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260275114.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260285130.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260295471.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260306168.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260315185.jpg",
+    "detections": [
+      {
+        "class": "drain_area",
+        "bbox": [
+          287.22,
+          943.34,
+          1583.35,
+          1188.0
+        ],
+        "conf": 0.43875938653945923
+      }
+    ],
+    "drain_full_count": 0,
+    "drain_area_count": 1,
+    "filtered_count": 1
+  },
+  {
+    "image": "1788260325197.jpg",
+    "detections": [
+      {
+        "class": "drain_full",
+        "bbox": [
+          0.0,
+          0.0,
+          1669.69,
+          1188.0
+        ],
+        "conf": 0.1707383692264557
+      },
+      {
+        "class": "drain_full",
+        "bbox": [
+          457.85,
+          0.0,
+          2112.0,
+          1188.0
+        ],
+        "conf": 0.10704456269741058
+      }
+    ],
+    "drain_full_count": 2,
+    "drain_area_count": 0,
+    "filtered_count": 2
+  },
+  {
+    "image": "1788260343533.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260345227.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  },
+  {
+    "image": "1788260360157.jpg",
+    "detections": [],
+    "drain_full_count": 0,
+    "drain_area_count": 0,
+    "filtered_count": 0
+  }
+]

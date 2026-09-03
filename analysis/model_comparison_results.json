@@ -1,0 +1,35 @@
+{
+  "_best-seg": {
+    "_1-12-2026-09-01_10-42-53": {
+      "detections": 123,
+      "classes": {
+        "drain_full": 109,
+        "drain_area": 14
+      },
+      "max_gps_diff_ms": 5159,
+      "stale_gps": 1
+    }
+  },
+  "copy_paste_merged_best": {
+    "_1-12-2026-09-01_10-42-53": {
+      "detections": 78,
+      "classes": {
+        "drain_area": 77,
+        "drain_full": 1
+      },
+      "max_gps_diff_ms": 5159,
+      "stale_gps": 1
+    }
+  },
+  "fast_20ep_best": {
+    "_1-12-2026-09-01_10-42-53": {
+      "detections": 294,
+      "classes": {
+        "drain_area": 293,
+        "drain_full": 1
+      },
+      "max_gps_diff_ms": 5159,
+      "stale_gps": 1
+    }
+  }
+}
