@@ -1,0 +1,11 @@
+# Install a backend-specific runtime instead of copying the Colab environment.
+# The first prototype can use Ultralytics/PyTorch if a compatible ARM64 wheel exists.
+ultralytics
+numpy
+
+# Runtime utilities
+requests
+pyserial
+
+# Optional only when loading a stable-baselines3 DQN policy directly on the Pi.
+# stable-baselines3

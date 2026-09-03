@@ -1,0 +1,64 @@
+{
+  "source": "picamera2",
+  "output_path": "",
+  "max_frames": 0,
+  "realtime_source": false,
+  "camera_buffer_size": 1,
+  "roi_points": [[100, 400], [540, 400], [600, 480], [40, 480]],
+  "roi_expanded_scale": 1.15,
+  "temporal_hits": 3,
+  "temporal_max_missed": 2,
+  "temporal_iou": 0.3,
+  "policy_interval_s": 30.0,
+  "detector": {
+    "model_path": "models/best-seg-5class.pt",
+    "image_size": 320,
+    "confidence": 0.4,
+    "iou": 0.45,
+    "device": "cpu",
+    "class_names": ["gully", "debris", "sediment", "trash", "leaf"]
+  },
+  "storage": {
+    "spool_dir": "data/spool",
+    "max_gb": 1.0,
+    "save_evidence": true,
+    "jpeg_quality": 80
+  },
+  "upload": {
+    "url": "http://127.0.0.1:8000/upload",
+    "token": "beum-secret-token",
+    "timeout_s": 10.0,
+    "flush_interval_s": 5.0
+  },
+  "gps": {
+    "provider": "none",
+    "csv_path": "data/gps.csv",
+    "sample_period_s": 1.0,
+    "replay_speed": 1.0,
+    "serial_port": "/dev/ttyUSB0",
+    "baudrate": 9600,
+    "serial_timeout_s": 1.0,
+    "udp_host": "0.0.0.0",
+    "udp_port": 9000
+  },
+  "blockage": {
+    "gully_class_names": ["gully"],
+    "obstacle_class_names": ["debris", "sediment", "trash", "leaf"],
+    "warning_percent": 20.0,
+    "critical_percent": 50.0,
+    "event_change_percent": 10.0,
+    "event_cooldown_s": 300.0
+  },
+  "policy": {
+    "model_path": "",
+    "min_safe_battery": 20.0,
+    "critical_battery": 8.0,
+    "emergency_rain_level": 2,
+    "emergency_water_level": 0.85,
+    "mode_intervals": {
+      "low": 5.0,
+      "medium": 1.0,
+      "high": 0.2
+    }
+  }
+}
