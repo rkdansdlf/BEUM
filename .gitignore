@@ -1,0 +1,11 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/spool/
+data/*.mp4
+models/*.pt
+models/*.onnx
+models/*_ncnn_model/
+models/*_openvino_model/
