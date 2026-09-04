@@ -120,8 +120,12 @@ class ReceiverApp:
         policy = event_data.get("policy") or {}
         gps = event_data.get("gps") or {}
 
-        lat = gps.get("lat") if isinstance(gps, dict) else None
-        lon = gps.get("lon") if isinstance(gps, dict) else None
+        if isinstance(gps, dict):
+            lat = gps.get("latitude") if gps.get("latitude") is not None else gps.get("lat")
+            lon = gps.get("longitude") if gps.get("longitude") is not None else (gps.get("lon") or gps.get("lng"))
+        else:
+            lat = None
+            lon = None
 
         with self._get_connection() as conn:
             conn.execute(
@@ -367,11 +371,11 @@ def main() -> None:
     args = parser.parse_args()
 
     print("==================================================")
-    print("🚀 Starting BEUM Central Receiver Server")
-    print(f"📍 Binding Address : http://{args.host}:{args.port}")
-    print(f"📁 Storage Directory: {Path(args.data_dir).resolve()}")
-    print(f"🔑 Auth Token       : {'[Configured]' if args.token else '[Disabled - Dev Mode]'}")
-    print("💡 Windows Firewall: If edge device connection times out, run PowerShell as Admin:")
+    print("[*] Starting BEUM Central Receiver Server")
+    print(f"[*] Binding Address : http://{args.host}:{args.port}")
+    print(f"[*] Storage Directory: {Path(args.data_dir).resolve()}")
+    print(f"[*] Auth Token       : {'[Configured]' if args.token else '[Disabled - Dev Mode]'}")
+    print("[!] Windows Firewall: If edge device connection times out, run PowerShell as Admin:")
     print(f'   New-NetFirewallRule -DisplayName "BEUM Receiver" -Direction Inbound -LocalPort {args.port} -Protocol TCP -Action Allow')
     print("==================================================")
 
