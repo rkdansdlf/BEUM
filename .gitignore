@@ -28,3 +28,12 @@ roboflow_downloads/
 dataset/
 *.log
 .drainsight-test-*
+
+# Local datasets, captures, and generated analysis artifacts
+analysis/
+data/
+*.MOV
+*.mov
+*.MP4
+*.mp4
+*.pt
