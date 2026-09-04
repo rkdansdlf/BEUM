@@ -14,3 +14,7 @@ models/*.pt
 models/*.onnx
 models/*_ncnn_model/
 models/*_openvino_model/
+runs/
+scratch/
+waterDrain-1/
+Case_model/
