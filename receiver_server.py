@@ -41,7 +41,7 @@ class ReceiverApp:
         self.data_dir = Path(data_dir)
         self.images_dir = self.data_dir / "images"
         self.db_path = self.data_dir / "beum_events.db"
-        self.token = token.strip()
+        self.token = token.strip() if token else ""
 
         self._init_storage()
         self.app = FastAPI(title=title, version="1.0.0")

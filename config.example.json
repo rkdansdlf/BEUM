@@ -25,7 +25,7 @@
     "jpeg_quality": 80
   },
   "upload": {
-    "url": "http://127.0.0.1:8000/upload",
+    "url": "http://127.0.0.1:8001/upload",
     "token": "beum-secret-token",
     "timeout_s": 10.0,
     "flush_interval_s": 5.0

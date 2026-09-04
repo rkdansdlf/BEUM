@@ -16,5 +16,15 @@ models/*_ncnn_model/
 models/*_openvino_model/
 runs/
 scratch/
+received_data/
+*.db
+data/spool*/
+data/e2e_*
+data/*.mp4
+scratch_*
 waterDrain-1/
 Case_model/
+roboflow_downloads/
+dataset/
+*.log
+.drainsight-test-*

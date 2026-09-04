@@ -24,11 +24,31 @@ TensorRT is not a target backend for a plain Raspberry Pi 5 because it requires 
 NVIDIA execution platform. If higher throughput is required, evaluate a supported
 external accelerator separately.
 
-## Local Development
+## Local Development & Testing
 
+### 1. Run Receiver Server (Central Backend)
 ```bash
-python -m unittest discover -s tests -v
+# Start receiver server (default port 8001 or 8000)
+python receiver_server.py --port 8001 --data-dir received_data
+```
+The server exposes:
+- `POST /upload` - Accepts multipart/form-data (`metadata` JSON + `image` JPEG) or plain JSON.
+- `GET /events` - Lists received blockage events.
+- `GET /events/{event_id}` - Detailed event record.
+- `GET /events/{event_id}/image` - Download stored evidence photo.
+- `GET /health` - Service health status.
+
+### 2. Run Unit Tests
+```bash
+python -m unittest discover tests -v
+```
+
+### 3. Run Gully Edge Pipeline
+```bash
+# Run pipeline with custom configuration
 python -m gully_system.main --config config.example.json --model models/best-seg-5class.pt --source video.mp4 --max-frames 100
+
+# Realtime mode with latest-frame queue
 python -m gully_system.main --config config.example.json --model models/best-seg-5class.pt --source video.mp4 --realtime --max-frames 100
 ```
 
