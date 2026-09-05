@@ -1,0 +1,37 @@
+[Unit]
+Description=BEUM Edge Gully Monitoring Runtime (Raspberry Pi 5)
+After=network.target time-sync.target
+Wants=time-sync.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/BEUM
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONPATH=/home/pi/BEUM"
+Environment="YOLO_CONFIG_DIR=/home/pi/BEUM/.ultralytics"
+Environment="MPLCONFIGDIR=/home/pi/BEUM/.matplotlib"
+
+# Pre-flight health check (fails fast if camera/model/storage are invalid)
+ExecStartPre=/home/pi/BEUM/.venv/bin/python -m gully_system.main --config /home/pi/BEUM/config.pi.json --health-check
+
+# Main Edge Pipeline Runtime
+ExecStart=/home/pi/BEUM/.venv/bin/python -m gully_system.main --config /home/pi/BEUM/config.pi.json
+
+# Restart policy: automatically recover from transient failures
+Restart=always
+RestartSec=5s
+StartLimitIntervalSec=120s
+StartLimitBurst=5
+
+# Logging configuration
+StandardOutput=append:/home/pi/BEUM/data/logs/beum-edge.log
+StandardError=append:/home/pi/BEUM/data/logs/beum-edge.err
+
+# Security & Process Limits
+LimitNOFILE=65535
+TimeoutStopSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+ultralytics
+numpy
+fastapi
+uvicorn[standard]
+websockets
+wsproto
+pydantic
+pytest
+starlette

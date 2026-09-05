@@ -11,12 +11,12 @@
   "temporal_iou": 0.3,
   "policy_interval_s": 1.0,
   "detector": {
-    "model_path": "runs/segment/exp_2class_hn0/weights/best.pt",
+    "model_path": "models/best-seg-canonical.pt",
     "image_size": 640,
-    "confidence": 0.05,
+    "confidence": 0.20,
     "iou": 0.45,
     "device": "cpu",
-    "class_names": ["drain_area", "drain_full"]
+    "class_names": ["object", "drain_area", "drain_full"]
   },
   "storage": {
     "spool_dir": "data/spool",

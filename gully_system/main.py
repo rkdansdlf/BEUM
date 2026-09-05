@@ -8,6 +8,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from gully_system.config import SystemConfig
+from gully_system.health import run_health_check
 from gully_system.runtime import GullyRuntime
 
 
@@ -19,6 +20,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-frames", type=int, help="Override frame limit; 0 means unlimited")
     parser.add_argument("--realtime", action="store_true", help="Replay a video at source FPS with a latest-frame buffer")
     parser.add_argument("--display", action="store_true", help="Show a local preview window")
+    parser.add_argument("--health-check", action="store_true", help="Run system preflight health check and exit")
+    parser.add_argument("--strict", action="store_true", help="Enforce strict model-config mapping validation")
+    parser.add_argument("--mapping-mode", choices=("auto", "strict", "warn"), help="Override class mapping validation mode")
+    parser.add_argument("--skip-preflight", action="store_true", help="Skip pre-flight health check before running pipeline")
     parser.add_argument("--log-level", default="INFO", choices=("DEBUG", "INFO", "WARNING", "ERROR"))
     return parser
 
@@ -36,12 +41,23 @@ def main() -> int:
     config = SystemConfig.from_json(config_path)
     if args.model:
         config = replace(config, detector=replace(config.detector, model_path=args.model))
+    if args.strict:
+        config = replace(config, detector=replace(config.detector, mapping_mode="strict"))
+    elif args.mapping_mode:
+        config = replace(config, detector=replace(config.detector, mapping_mode=args.mapping_mode))
+    if args.skip_preflight:
+        config = replace(config, run_preflight=False)
     if args.source:
         config = replace(config, source=args.source)
     if args.max_frames is not None:
         config = replace(config, max_frames=args.max_frames)
     if args.realtime:
         config = replace(config, realtime_source=True)
+
+    if args.health_check:
+        report = run_health_check(config, check_network=True)
+        print(report.summary())
+        return 0 if report.can_start else 1
 
     runtime = GullyRuntime(config)
     result = runtime.run(display=args.display)

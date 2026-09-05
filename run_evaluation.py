@@ -48,15 +48,15 @@ for model_path in model_paths:
     model_name = f"{p.parent.parent.name}_{p.stem}"
     print(f'Validating {model_name}...')
     model = YOLO(model_path)
-    metrics = model.val(data='dataset/merged/gully-seg-merged.yaml', imgsz=640, conf=0.10, verbose=False)
+    metrics = model.val(data='dataset/merged/gully-seg-merged.yaml', imgsz=640, conf=0.001, overlap_mask=False, verbose=False)
     
     validation_results[model_name] = {
         'box_map50': float(metrics.box.map50) if hasattr(metrics.box, 'map50') else 0.0,
         'box_map50_95': float(metrics.box.map) if hasattr(metrics.box, 'map') else 0.0,
         'mask_map50': float(metrics.seg.map50) if hasattr(metrics.seg, 'map50') else 0.0,
         'mask_map50_95': float(metrics.seg.map) if hasattr(metrics.seg, 'map') else 0.0,
-        'precision': float(metrics.box.p[0]) if hasattr(metrics.box, 'p') and len(metrics.box.p) > 0 else 0.0,
-        'recall': float(metrics.box.r[0]) if hasattr(metrics.box, 'r') and len(metrics.box.r) > 0 else 0.0,
+        'precision': float(metrics.box.mp),
+        'recall': float(metrics.box.mr),
     }
     print(f'  box mAP50: {metrics.box.map50:.4f}')
     print(f'  mask mAP50: {metrics.seg.map50:.4f}')

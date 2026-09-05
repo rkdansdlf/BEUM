@@ -32,16 +32,26 @@ class CameraSource:
         self.fps: float = 30.0
         self._replay_end = object()
 
+    @property
+    def frame_size(self) -> tuple[int, int] | None:
+        if self.width and self.height:
+            return (self.width, self.height)
+        return None
+
     def open(self) -> None:
         if self._use_picamera2:
             try:
                 from picamera2 import Picamera2
                 self._picamera = Picamera2()
+                width = self.width or 640
+                height = self.height or 480
                 config = self._picamera.create_video_configuration(
-                    main={"size": (self.width or 640, self.height or 480)}
+                    main={"size": (width, height)}
                 )
                 self._picamera.configure(config)
                 self._picamera.start()
+                self.width = width
+                self.height = height
             except ImportError as exc:
                 raise RuntimeError("python3-picamera2 is required for picamera2 source") from exc
         else:
@@ -54,6 +64,11 @@ class CameraSource:
                     self._capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
                 if self.height:
                     self._capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+                actual_w = int(self._capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+                actual_h = int(self._capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                if actual_w > 0 and actual_h > 0:
+                    self.width = actual_w
+                    self.height = actual_h
                 fps = self._capture.get(cv2.CAP_PROP_FPS)
                 if fps and fps > 0:
                     self.fps = fps
@@ -104,18 +119,26 @@ class CameraSource:
                 raise RuntimeError("CameraSource.open() must be called first")
             import cv2
             frame = self._picamera.capture_array()
-            return True, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        if self._replay_queue is not None:
+            ok, frame = True, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        elif self._replay_queue is not None:
             try:
                 item = self._replay_queue.get(timeout=max(1.0, 2.0 / max(1.0, self.fps)))
                 if item is self._replay_end:
                     return False, None
-                return True, item
+                ok, frame = True, item
             except queue.Empty:
                 return False, None
-        if self._capture is None:
-            raise RuntimeError("CameraSource.open() must be called first")
-        return self._capture.read()
+        else:
+            if self._capture is None:
+                raise RuntimeError("CameraSource.open() must be called first")
+            ok, frame = self._capture.read()
+
+        if ok and frame is not None and (self.width is None or self.height is None):
+            if hasattr(frame, "shape") and len(frame.shape) >= 2:
+                self.height = int(frame.shape[0])
+                self.width = int(frame.shape[1])
+
+        return ok, frame
 
     def release(self) -> None:
         self._replay_stop.set()

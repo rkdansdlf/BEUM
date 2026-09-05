@@ -11,9 +11,9 @@
   "temporal_iou": 0.30,
   "policy_interval_s": 30.0,
   "detector": {
-    "model_path": "models/best-seg-3class.pt",
+    "model_path": "models/best-seg-canonical.pt",
     "image_size": 640,
-    "confidence": 0.15,
+    "confidence": 0.20,
     "iou": 0.45,
     "device": "cpu",
     "class_names": ["object", "drain_area", "drain_full"]

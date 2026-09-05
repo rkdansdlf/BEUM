@@ -35,8 +35,8 @@ class BlockageMetrics:
 class BlockageAnalyzer:
     def __init__(
         self,
-        gully_class_names: tuple[str, ...] = ("gully",),
-        obstacle_class_names: tuple[str, ...] = ("debris", "sediment", "trash", "leaf"),
+        gully_class_names: tuple[str, ...] = ("drain_area", "gully"),
+        obstacle_class_names: tuple[str, ...] = ("drain_full", "debris", "sediment", "trash", "leaf"),
         warning_percent: float = 20.0,
         critical_percent: float = 50.0,
     ) -> None:
@@ -94,14 +94,14 @@ class BlockageAnalyzer:
         gullies = [d for d in actual_detections if d.class_name.lower() in self.gully_class_names]
         obstacles = [d for d in actual_detections if d.class_name.lower() in self.obstacle_class_names]
 
-        if not gullies:
+        if not gullies and not obstacles:
             return BlockageMetrics(
                 status="no_gully",
                 coverage_percent=0.0,
                 blocked_area_px=0,
                 gully_area_px=0,
                 gully_count=0,
-                obstacle_count=len(obstacles),
+                obstacle_count=0,
                 method="none",
                 confidence=0.0,
             )
@@ -115,10 +115,22 @@ class BlockageAnalyzer:
             gully_masks.append(m)
             methods.add(method)
 
-        gully_union = self._union(gully_masks, height, width)
-        gully_area_px = int(np.count_nonzero(gully_union))
+        obstacle_masks: list[object] = []
+        for o in obstacles:
+            m, method = self._detection_mask(o, height, width)
+            obstacle_masks.append(m)
+            methods.add(method)
+            confidences.append(o.confidence)
 
-        if gully_area_px == 0:
+        gully_union = self._union(gully_masks, height, width) if gully_masks else np.zeros((height, width), dtype=np.uint8)
+        obstacle_union = self._union(obstacle_masks, height, width) if obstacle_masks else np.zeros((height, width), dtype=np.uint8)
+
+        # In 2-class setup (drain_area, drain_full), drain_full itself represents a blocked drain.
+        # Total physical drain area is the union of visible grating (gully) and blocked area (obstacle).
+        total_drain_union = np.bitwise_or(gully_union, obstacle_union)
+        total_drain_area_px = int(np.count_nonzero(total_drain_union))
+
+        if total_drain_area_px == 0:
             return BlockageMetrics(
                 status="no_gully",
                 coverage_percent=0.0,
@@ -130,21 +142,22 @@ class BlockageAnalyzer:
                 confidence=float(np.mean(confidences)) if confidences else 0.0,
             )
 
-        obstacle_masks: list[object] = []
-        for o in obstacles:
-            m, method = self._detection_mask(o, height, width)
-            obstacle_masks.append(m)
-            methods.add(method)
-            confidences.append(o.confidence)
-
-        if obstacle_masks:
-            obstacle_union = self._union(obstacle_masks, height, width)
-            blocked_in_gully = np.bitwise_and(gully_union, obstacle_union)
-            blocked_area_px = int(np.count_nonzero(blocked_in_gully))
-        else:
+        if not gullies and obstacles:
+            # 100% blocked drain (e.g. drain_full alone)
+            blocked_area_px = total_drain_area_px
+            coverage_percent = 100.0
+            gully_count = len(obstacles)
+        elif gullies and not obstacles:
+            # Clean drain (only drain_area)
             blocked_area_px = 0
+            coverage_percent = 0.0
+            gully_count = len(gullies)
+        else:
+            # Both detected: blocked area is the obstacle union
+            blocked_area_px = int(np.count_nonzero(obstacle_union))
+            coverage_percent = min(100.0, (blocked_area_px / total_drain_area_px) * 100.0)
+            gully_count = max(len(gullies), len(obstacles))
 
-        coverage_percent = min(100.0, (blocked_area_px / gully_area_px) * 100.0)
         if coverage_percent >= self.critical_percent:
             status = "critical"
         elif coverage_percent >= self.warning_percent:
@@ -159,8 +172,8 @@ class BlockageAnalyzer:
             status=status,
             coverage_percent=coverage_percent,
             blocked_area_px=blocked_area_px,
-            gully_area_px=gully_area_px,
-            gully_count=len(gullies),
+            gully_area_px=total_drain_area_px,
+            gully_count=gully_count,
             obstacle_count=len(obstacles),
             method=method_name,
             confidence=confidence,

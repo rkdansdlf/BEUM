@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: beum/receiver-server:latest
+    container_name: beum-receiver
+    restart: unless-stopped
+    ports:
+      - "${RECEIVER_PORT:-8001}:8001"
+    environment:
+      - RECEIVER_HOST=0.0.0.0
+      - RECEIVER_PORT=8001
+      - RECEIVER_TOKEN=${RECEIVER_TOKEN:-}
+      - RECEIVER_DATA_DIR=/app/received_data
+    volumes:
+      # Persistent SQLite DB and evidence image storage
+      - ./received_data:/app/received_data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 256M

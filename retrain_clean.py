@@ -9,7 +9,7 @@ import yaml
 model = YOLO('models/best-seg-3class.pt')
 
 config_params = dict(
-    data='C:/Project/BEUM/dataset/clean/gully-seg-clean.yaml',
+    data='dataset/clean/gully-seg-clean.yaml',
     epochs=50,
     imgsz=640,
     batch=8,
@@ -23,7 +23,9 @@ config_params = dict(
     close_mosaic=10,
     lr0=0.001,
     optimizer='AdamW',
-    seed=42
+    seed=42,
+    overlap_mask=False,
+    mask_ratio=4,
 )
 
 print("Starting fine-tuning on clean dataset...")

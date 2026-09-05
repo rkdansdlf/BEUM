@@ -30,6 +30,12 @@ external accelerator separately.
 ```bash
 # Start receiver server (default port 8001 or 8000)
 python receiver_server.py --port 8001 --data-dir received_data
+
+# Or run with Docker Compose (One-Click Containerized Deployment)
+docker compose up -d
+
+# View container logs
+docker compose logs -f receiver
 ```
 
 The receiver applies pending SQLite migrations before serving requests. Migration
@@ -101,10 +107,51 @@ For MP4 replay, use `--realtime`; frames are produced in a background buffer and
 the oldest queued frame is dropped when processing falls behind. The final result
 reports `dropped_frames`.
 
-The repository includes `config.video_1.json` for the uploaded `video/1.mp4`. It uses
-GPS `none` and a full-frame ROI because the uploaded clip is a moving portrait video,
-not a fixed CCTV view. It still requires `models/best-seg-5class.pt` before producing a valid
-gully coverage result.
+The repository includes `config.pi.json` pre-configured for the Raspberry Pi 5 with
+the lightweight `best-seg-2class_320.onnx` model, CSI Picamera2, and UART GPS.
+
+### Systemd Auto-Start Service & Watchdog
+
+To configure the monitoring pipeline to start automatically on boot and recover
+from unexpected crashes or power cycles:
+
+```bash
+# 1. Install and enable systemd service
+sudo bash scripts/install_edge_service.sh
+
+# 2. Check service status
+systemctl status beum-edge.service
+
+# 3. View live journal logs
+journalctl -u beum-edge.service -f
+
+# 4. Run hardware thermal & health watchdog
+python scripts/edge_watchdog.py --config config.pi.json --interval-s 60
+```
+
+To remove the service:
+```bash
+sudo bash scripts/uninstall_edge_service.sh
+```
+
+## Hardware Verification & Live Preview (Camera & GPS)
+
+To verify camera capture and GPS reception on the target Raspberry Pi without loading heavy AI models, use the dedicated hardware inspector:
+
+```bash
+# 1. System Pre-flight Check (Detector, Camera, Storage, GPS, Upload)
+python -m gully_system.main --config config.example.json --health-check
+
+# 2. Live Terminal Monitor (CLI / SSH mode)
+python tools/hardware_check.py --config config.example.json
+
+# 3. Live Web Preview (Best for field testing via Smartphone / Laptop browser)
+python tools/hardware_check.py --config config.example.json --web --web-port 8080
+# Open http://<RaspberryPi-IP>:8080 on your phone or laptop
+
+# 4. Local GUI Window (Requires HDMI monitor or VNC desktop)
+python tools/hardware_check.py --config config.example.json --display
+```
 
 ## GPS Providers
 

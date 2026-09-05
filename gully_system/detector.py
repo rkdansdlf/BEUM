@@ -6,6 +6,12 @@ from pathlib import Path
 from typing import Any
 from gully_system.config import DetectorConfig
 from gully_system.types import Detection
+from gully_system.validator import (
+    MappingResult,
+    ModelMappingError,
+    extract_model_classes,
+    validate_and_resolve_mapping,
+)
 
 
 class YOLODetector:
@@ -20,7 +26,22 @@ class YOLODetector:
             raise RuntimeError("Install the selected YOLO runtime before starting inference") from exc
         self.config = config
         self.model = YOLO(config.model_path)
-        self.allowed_names = set(config.class_names)
+        self.model_classes = extract_model_classes(self.model)
+
+        names_attr = getattr(self.model, "names", {})
+        if isinstance(names_attr, dict):
+            self.names_map: dict[int, str] = {int(k): str(v) for k, v in names_attr.items()}
+        elif isinstance(names_attr, (list, tuple)):
+            self.names_map: dict[int, str] = {i: str(v) for i, v in enumerate(names_attr)}
+        else:
+            self.names_map: dict[int, str] = {}
+
+        self.mapping_result: MappingResult = validate_and_resolve_mapping(
+            model_classes=self.model_classes,
+            config_class_names=config.class_names,
+            mapping_mode=config.mapping_mode,
+        )
+        self.allowed_names = set(self.mapping_result.resolved_class_names)
 
     def predict(self, frame: object) -> list[Detection]:
         results = self.model.predict(
@@ -34,12 +55,7 @@ class YOLODetector:
         if not results:
             return []
         result = results[0]
-        names: dict[int, str] = {}
-        model_names = getattr(self.model, "names", {})
-        if isinstance(model_names, dict):
-            names = {int(k): str(v) for k, v in model_names.items()}
-        elif isinstance(model_names, list):
-            names = {index: str(v) for index, v in enumerate(model_names)}
+        names = self.names_map
 
         detections: list[Detection] = []
         for index, box in enumerate(result.boxes):

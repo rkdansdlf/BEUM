@@ -7,7 +7,7 @@ print(f'Loaded model classes: {model.names}')
 
 # Evaluate on clean validation set
 print('\nEvaluating on clean validation set...')
-results = model.val(data='C:/Project/BEUM/dataset/clean/gully-seg-clean.yaml', imgsz=640, conf=0.10, verbose=False)
+results = model.val(data='dataset/clean/gully-seg-clean.yaml', imgsz=640, conf=0.001, overlap_mask=False, verbose=False)
 
 # Extract metrics
 metrics = {
@@ -15,8 +15,8 @@ metrics = {
     'box_map50_95': float(results.box.map),
     'mask_map50': float(results.seg.map50),
     'mask_map50_95': float(results.seg.map),
-    'precision': float(results.box.p[0]) if hasattr(results.box, 'p') and len(results.box.p) > 0 else 0.0,
-    'recall': float(results.box.r[0]) if hasattr(results.box, 'r') and len(results.box.r) > 0 else 0.0,
+    'precision': float(results.box.mp),
+    'recall': float(results.box.mr),
 }
 
 print(f'  Box mAP50: {metrics["box_map50"]:.4f}')

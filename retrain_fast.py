@@ -13,7 +13,7 @@ print(f"Loading base model: {base_model}")
 model = YOLO(base_model)
 
 config_params = dict(
-    data='C:/Project/BEUM/dataset/clean/gully-seg-clean.yaml',
+    data='dataset/clean/gully-seg-clean.yaml',
     epochs=20,
     imgsz=640,
     batch=8,
@@ -30,6 +30,8 @@ config_params = dict(
     seed=42,
     patience=5,
     pretrained=True,
+    overlap_mask=False,
+    mask_ratio=4,
 )
 
 print("Starting fine-tuning on clean dataset (20 epochs)...")

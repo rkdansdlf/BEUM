@@ -172,10 +172,16 @@ class ReceiverApp:
             lat = None
             lon = None
 
-        coverage_percent = float(blockage.get("coverage_percent", 0.0) or 0.0)
+        coverage_percent = float(
+            blockage.get("coverage_percent")
+            if blockage.get("coverage_percent") is not None
+            else (event_data.get("coverage_percent", 0.0) or 0.0)
+        )
         occlusion_pct = event_data.get("occlusion_pct")
         if occlusion_pct is None:
             occlusion_pct = coverage_percent
+
+        status_val = str(blockage.get("status") or event_data.get("status", "") or "")
 
         with self._get_connection() as conn:
             conn.execute(
@@ -192,7 +198,7 @@ class ReceiverApp:
                     str(event_data.get("source", "")),
                     str(event_data.get("created_at", "")),
                     received_at,
-                    str(blockage.get("status", "")),
+                    status_val,
                     float(coverage_percent),
                     float(occlusion_pct) if occlusion_pct is not None else None,
                     str(policy.get("roi_profile", "")),
@@ -460,7 +466,7 @@ class ReceiverApp:
 
             # Validate occlusion_pct if provided
             blockage = event_data.get("blockage") or {}
-            cov = blockage.get("coverage_percent")
+            cov = blockage.get("coverage_percent") if blockage.get("coverage_percent") is not None else event_data.get("coverage_percent")
             occ = event_data.get("occlusion_pct")
             if cov is not None:
                 try:

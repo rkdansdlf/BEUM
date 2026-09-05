@@ -1,0 +1,85 @@
+{
+  "source": "data/e2e_test_drain.mp4",
+  "output_path": "",
+  "max_frames": 15,
+  "realtime_source": false,
+  "camera_buffer_size": 1,
+  "roi_points": [
+    [
+      0,
+      0
+    ],
+    [
+      1080,
+      0
+    ],
+    [
+      1080,
+      1920
+    ],
+    [
+      0,
+      1920
+    ]
+  ],
+  "roi_expanded_scale": 1.0,
+  "temporal_hits": 1,
+  "temporal_max_missed": 2,
+  "temporal_iou": 0.3,
+  "policy_interval_s": 30.0,
+  "detector": {
+    "model_path": "models/best-seg-3class.pt",
+    "image_size": 640,
+    "confidence": 0.1,
+    "iou": 0.45,
+    "device": "cpu",
+    "class_names": [
+      "object",
+      "drain_area",
+      "drain_full"
+    ]
+  },
+  "storage": {
+    "spool_dir": "data/spool_e2e",
+    "max_gb": 1.0,
+    "save_evidence": true,
+    "jpeg_quality": 85
+  },
+  "upload": {
+    "url": "http://127.0.0.1:8001/upload",
+    "token": "",
+    "timeout_s": 10.0,
+    "flush_interval_s": 0.1
+  },
+  "gps": {
+    "provider": "replay",
+    "csv_path": "data/e2e_gps_replay.csv",
+    "sample_period_s": 0.1,
+    "replay_speed": 10.0
+  },
+  "blockage": {
+    "gully_class_names": [
+      "drain_area"
+    ],
+    "obstacle_class_names": [
+      "drain_full",
+      "object"
+    ],
+    "warning_percent": 5.0,
+    "critical_percent": 15.0,
+    "event_change_percent": 5.0,
+    "event_cooldown_s": 0.1
+  },
+  "policy": {
+    "model_path": "",
+    "min_safe_battery": 20.0,
+    "critical_battery": 8.0,
+    "emergency_rain_level": 2,
+    "emergency_water_level": 0.85,
+    "mode_intervals": {
+      "low": 0.0,
+      "medium": 0.0,
+      "high": 0.0
+    }
+  }
+}

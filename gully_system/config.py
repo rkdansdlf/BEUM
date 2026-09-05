@@ -15,7 +15,8 @@ class DetectorConfig:
     confidence: float = 0.4
     iou: float = 0.45
     device: str = "cpu"
-    class_names: tuple[str, ...] = ()
+    class_names: tuple[str, ...] = ("drain_area", "drain_full")
+    mapping_mode: str = "auto"
 
     @classmethod
     def from_dict(cls, value: dict[str, Any] | None) -> DetectorConfig:
@@ -28,6 +29,7 @@ class DetectorConfig:
             iou=float(value.get("iou", cls.iou)),
             device=str(value.get("device", cls.device)),
             class_names=tuple(str(item) for item in value.get("class_names", cls.class_names)),
+            mapping_mode=str(value.get("mapping_mode", cls.mapping_mode)),
         )
 
 
@@ -104,8 +106,8 @@ class GPSConfig:
 
 @dataclass(frozen=True)
 class BlockageConfig:
-    gully_class_names: tuple[str, ...] = ("gully",)
-    obstacle_class_names: tuple[str, ...] = ("debris", "sediment", "trash", "leaf")
+    gully_class_names: tuple[str, ...] = ("drain_area", "gully")
+    obstacle_class_names: tuple[str, ...] = ("drain_full", "debris", "sediment", "trash", "leaf")
     warning_percent: float = 20.0
     critical_percent: float = 50.0
     event_change_percent: float = 10.0
@@ -164,11 +166,13 @@ class SystemConfig:
         (600.0, 480.0),
         (40.0, 480.0),
     )
+    roi_base_resolution: tuple[int, int] | None = None
     roi_expanded_scale: float = 1.15
     temporal_hits: int = 3
     temporal_max_missed: int = 2
     temporal_iou: float = 0.3
     policy_interval_s: float = 30.0
+    run_preflight: bool = True
     detector: DetectorConfig = field(default_factory=DetectorConfig)
     storage: StorageConfig = field(default_factory=StorageConfig)
     upload: UploadConfig = field(default_factory=UploadConfig)
@@ -179,6 +183,12 @@ class SystemConfig:
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> SystemConfig:
         roi_points = tuple((float(point[0]), float(point[1])) for point in value.get("roi_points", cls.roi_points))
+        roi_base_resolution = None
+        if "roi_base_resolution" in value and value["roi_base_resolution"]:
+            roi_base_resolution = (
+                int(value["roi_base_resolution"][0]),
+                int(value["roi_base_resolution"][1]),
+            )
         return cls(
             source=str(value.get("source", cls.source)),
             output_path=str(value.get("output_path", cls.output_path)),
@@ -186,11 +196,13 @@ class SystemConfig:
             realtime_source=bool(value.get("realtime_source", cls.realtime_source)),
             camera_buffer_size=int(value.get("camera_buffer_size", cls.camera_buffer_size)),
             roi_points=roi_points,
+            roi_base_resolution=roi_base_resolution,
             roi_expanded_scale=float(value.get("roi_expanded_scale", cls.roi_expanded_scale)),
             temporal_hits=int(value.get("temporal_hits", cls.temporal_hits)),
             temporal_max_missed=int(value.get("temporal_max_missed", cls.temporal_max_missed)),
             temporal_iou=float(value.get("temporal_iou", cls.temporal_iou)),
             policy_interval_s=float(value.get("policy_interval_s", cls.policy_interval_s)),
+            run_preflight=bool(value.get("run_preflight", cls.run_preflight)),
             detector=DetectorConfig.from_dict(value.get("detector", {})),
             storage=StorageConfig.from_dict(value.get("storage", {})),
             upload=UploadConfig.from_dict(value.get("upload", {})),

@@ -1,0 +1,22 @@
+[Unit]
+Description=BEUM Central Receiver Server & DrainSight Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/BEUM
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONPATH=/home/pi/BEUM"
+
+ExecStart=/home/pi/BEUM/.venv/bin/python receiver_server.py --host 0.0.0.0 --port 8001 --data-dir /home/pi/BEUM/received_data
+
+Restart=always
+RestartSec=5s
+
+StandardOutput=append:/home/pi/BEUM/data/logs/receiver.log
+StandardError=append:/home/pi/BEUM/data/logs/receiver.err
+
+[Install]
+WantedBy=multi-user.target

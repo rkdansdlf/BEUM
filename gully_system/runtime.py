@@ -21,6 +21,7 @@ from gully_system.gps import (
     SerialGPSProvider,
     UDPGPSProvider,
 )
+from gully_system.health import SystemHealthError, SystemHealthReport, run_health_check
 from gully_system.policy import PolicyDecision, RuleBasedPolicy, SafePolicy, TablePolicy
 from gully_system.roi import ROI
 from gully_system.sensors import SensorProvider, SensorSnapshot, SystemSensorProvider
@@ -53,9 +54,19 @@ class GullyRuntime:
             max_missed=config.temporal_max_missed,
             iou_threshold=config.temporal_iou,
         )
+
+        # Synchronize blockage analyzer classes with model-config mapping if available
+        analyzer_gullies = config.blockage.gully_class_names
+        analyzer_obstacles = config.blockage.obstacle_class_names
+        if hasattr(self.detector, "mapping_result") and self.detector.mapping_result:
+            if self.detector.mapping_result.resolved_gully_classes:
+                analyzer_gullies = self.detector.mapping_result.resolved_gully_classes
+            if self.detector.mapping_result.resolved_obstacle_classes:
+                analyzer_obstacles = self.detector.mapping_result.resolved_obstacle_classes
+
         self.analyzer = BlockageAnalyzer(
-            gully_class_names=config.blockage.gully_class_names,
-            obstacle_class_names=config.blockage.obstacle_class_names,
+            gully_class_names=analyzer_gullies,
+            obstacle_class_names=analyzer_obstacles,
             warning_percent=config.blockage.warning_percent,
             critical_percent=config.blockage.critical_percent,
         )
@@ -86,6 +97,33 @@ class GullyRuntime:
             self.policy = SafePolicy(base_policy, rule_policy, config.policy)
         else:
             self.policy = rule_policy
+
+        if config.run_preflight:
+            report = self.get_health()
+            if not report.can_start:
+                failed_items = [
+                    f"{k}: {v.message}"
+                    for k, v in report.components.items()
+                    if v.status.value == "unhealthy"
+                ]
+                raise SystemHealthError(
+                    f"Pre-flight health check failed (status={report.status.value}): "
+                    + "; ".join(failed_items)
+                )
+
+    def get_health(self, check_network: bool = False) -> SystemHealthReport:
+        """Run system health check."""
+        return run_health_check(self.config, check_network=check_network, sensor_provider=self.sensor_provider)
+
+    def update_roi_for_resolution(self, width: int, height: int) -> None:
+        """Update roi and expanded_roi based on target frame resolution."""
+        base_roi = ROI(self.config.roi_points)
+        self.roi = base_roi.scale_to_resolution(
+            target_width=width,
+            target_height=height,
+            base_resolution=self.config.roi_base_resolution,
+        )
+        self.expanded_roi = self.roi.scaled(self.config.roi_expanded_scale)
 
     def _create_gps_provider(self) -> BaseGPSProvider:
         provider = self.config.gps.provider.lower()
@@ -167,10 +205,15 @@ class GullyRuntime:
         self.camera.open()
         self.gps_provider.start()
 
+        if self.camera.width and self.camera.height:
+            self.update_roi_for_resolution(self.camera.width, self.camera.height)
+
         writer = None
         if self.config.output_path:
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            writer = cv2.VideoWriter(self.config.output_path, fourcc, max(10, int(self.camera.fps)), (1080, 1920))
+            frame_w = self.camera.width or 640
+            frame_h = self.camera.height or 480
+            writer = cv2.VideoWriter(self.config.output_path, fourcc, max(10, int(self.camera.fps)), (frame_w, frame_h))
 
         frame_count = 0
         inference_count = 0
@@ -187,6 +230,20 @@ class GullyRuntime:
                 ok, frame = self.camera.read()
                 if not ok or frame is None:
                     break
+
+                if frame_count == 0 and hasattr(frame, "shape") and len(frame.shape) >= 2:
+                    h, w = int(frame.shape[0]), int(frame.shape[1])
+                    if w != self.camera.width or h != self.camera.height:
+                        self.camera.width = w
+                        self.camera.height = h
+                        self.update_roi_for_resolution(w, h)
+                        active_roi = self.expanded_roi if current_decision.roi_profile in ("wide", "expanded") else self.roi
+                        if self.config.output_path:
+                            if writer:
+                                writer.release()
+                            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                            writer = cv2.VideoWriter(self.config.output_path, fourcc, max(10, int(self.camera.fps)), (w, h))
+
                 now = time.monotonic()
 
                 if now >= next_policy_at:
