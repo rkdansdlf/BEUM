@@ -7,5 +7,9 @@ numpy
 requests
 pyserial
 
+# WebSocket support for real-time telemetry streaming
+websockets
+wsproto
+
 # Optional only when loading a stable-baselines3 DQN policy directly on the Pi.
 # stable-baselines3

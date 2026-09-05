@@ -1,22 +1,22 @@
 {
-  "source": "picamera2",
+  "source": "0",
   "output_path": "",
   "max_frames": 0,
   "realtime_source": false,
   "camera_buffer_size": 1,
-  "roi_points": [[100, 400], [540, 400], [600, 480], [40, 480]],
-  "roi_expanded_scale": 1.15,
-  "temporal_hits": 3,
-  "temporal_max_missed": 2,
+  "roi_points": [[0, 0], [1080, 0], [1080, 1920], [0, 1920]],
+  "roi_expanded_scale": 1.0,
+  "temporal_hits": 1,
+  "temporal_max_missed": 0,
   "temporal_iou": 0.3,
-  "policy_interval_s": 30.0,
+  "policy_interval_s": 1.0,
   "detector": {
-    "model_path": "models/best-seg-5class.pt",
-    "image_size": 320,
-    "confidence": 0.4,
+    "model_path": "runs/segment/exp_2class_hn0/weights/best.pt",
+    "image_size": 640,
+    "confidence": 0.05,
     "iou": 0.45,
     "device": "cpu",
-    "class_names": ["gully", "debris", "sediment", "trash", "leaf"]
+    "class_names": ["drain_area", "drain_full"]
   },
   "storage": {
     "spool_dir": "data/spool",
@@ -42,12 +42,12 @@
     "udp_port": 9000
   },
   "blockage": {
-    "gully_class_names": ["gully"],
-    "obstacle_class_names": ["debris", "sediment", "trash", "leaf"],
+    "gully_class_names": ["drain_area"],
+    "obstacle_class_names": ["drain_full"],
     "warning_percent": 20.0,
     "critical_percent": 50.0,
     "event_change_percent": 10.0,
-    "event_cooldown_s": 300.0
+    "event_cooldown_s": 5.0
   },
   "policy": {
     "model_path": "",

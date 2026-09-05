@@ -31,7 +31,27 @@ external accelerator separately.
 # Start receiver server (default port 8001 or 8000)
 python receiver_server.py --port 8001 --data-dir received_data
 ```
+
+The receiver applies pending SQLite migrations before serving requests. Migration
+state is recorded in `schema_migrations`, so restarting the server is safe and
+does not re-run completed changes. To migrate a database before starting the
+server, stop any running receiver and run:
+
+```bash
+python -m migrations.runner --db received_data/beum_events.db
+```
+
+Back up the database before a production migration. The event-metrics migration
+adds missing `coverage_percent` and `occlusion_pct` columns and backfills
+historical `occlusion_pct` values from `coverage_percent`.
+
 The server exposes:
+- `GET /dashboard` - Integrated interactive DrainSight Web Control Dashboard (Leaflet Map + Real-time SSE Feed).
+- `GET /api/drainsight/geojson` - RFC 7946 GeoJSON FeatureCollection for GIS map integration (supports `?status=` and `?min_grade=`).
+- `GET /api/drainsight/stats` - Control console KPI summary metrics (grade distribution, averages, sources).
+- `GET /api/drainsight/alerts` - Actionable priority alerts filtered by coverage threshold (`?min_coverage=`).
+- `GET /api/drainsight/stream` - Real-time Server-Sent Events (SSE) feed for live push notifications.
+- `GET /api/drainsight/webhooks` & `POST /api/drainsight/webhooks` - Outbound webhook dispatcher configuration.
 - `POST /upload` - Accepts multipart/form-data (`metadata` JSON + `image` JPEG) or plain JSON.
 - `GET /events` - Lists received blockage events.
 - `GET /events/{event_id}` - Detailed event record.
