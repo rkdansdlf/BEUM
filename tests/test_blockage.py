@@ -42,7 +42,7 @@ class BlockageAnalyzerTest(unittest.TestCase):
         self.assertAlmostEqual(result.coverage_percent, 50.0)
         self.assertEqual(result.method, 'bbox_estimate')
 
-    def test_pure_2class_drain_full_alone_reports_critical_100_percent(self) -> None:
+    def test_pure_2class_drain_full_alone_reports_no_gully_by_default(self) -> None:
         mask = np.zeros((10, 10), dtype=np.uint8)
         mask[2:8, 2:8] = 1
         detections = [
@@ -55,11 +55,51 @@ class BlockageAnalyzerTest(unittest.TestCase):
             critical_percent=50,
         )
         result = analyzer.analyze(detections, (10, 10, 3))
+        self.assertEqual(result.status, 'no_gully')
+        self.assertAlmostEqual(result.coverage_percent, 0.0)
+        self.assertEqual(result.blocked_area_px, 0)
+        self.assertEqual(result.gully_area_px, 0)
+        self.assertEqual(result.gully_count, 0)
+
+    def test_pure_2class_drain_full_alone_reports_critical_when_permitted(self) -> None:
+        mask = np.zeros((10, 10), dtype=np.uint8)
+        mask[2:8, 2:8] = 1
+        detections = [
+            Detection((2, 2, 8, 8), 0.92, 1, 'drain_full', mask=mask),
+        ]
+        analyzer = BlockageAnalyzer(
+            gully_class_names=('drain_area',),
+            obstacle_class_names=('drain_full',),
+            warning_percent=20,
+            critical_percent=50,
+            require_gully_presence=False,
+            standalone_min_conf=0.85,
+        )
+        result = analyzer.analyze(detections, (10, 10, 3))
         self.assertEqual(result.status, 'critical')
         self.assertAlmostEqual(result.coverage_percent, 100.0)
         self.assertEqual(result.blocked_area_px, 36)
         self.assertEqual(result.gully_area_px, 36)
         self.assertEqual(result.gully_count, 1)
+
+    def test_isolated_obstacle_without_gully_overlap_is_ignored(self) -> None:
+        # Gully at top left (0,0,3,3)
+        gully_mask = np.zeros((10, 10), dtype=np.uint8)
+        gully_mask[0:3, 0:3] = 1
+        # Debris far away at bottom right (7,7,10,10)
+        debris_mask = np.zeros((10, 10), dtype=np.uint8)
+        debris_mask[7:10, 7:10] = 1
+        detections = [
+            Detection((0, 0, 3, 3), 0.95, 0, 'gully', mask=gully_mask),
+            Detection((7, 7, 10, 10), 0.90, 1, 'debris', mask=debris_mask),
+        ]
+        analyzer = BlockageAnalyzer(warning_percent=20, critical_percent=50)
+        result = analyzer.analyze(detections, (10, 10, 3))
+        # Isolated debris not overlapping gully should not block gully
+        self.assertEqual(result.status, 'clear')
+        self.assertAlmostEqual(result.coverage_percent, 0.0)
+        self.assertEqual(result.blocked_area_px, 0)
+        self.assertEqual(result.gully_area_px, 9)
 
     def test_pure_2class_drain_area_alone_reports_clear_0_percent(self) -> None:
         mask = np.zeros((10, 10), dtype=np.uint8)

@@ -49,6 +49,7 @@ class YOLODetector:
             imgsz=self.config.image_size,
             conf=self.config.confidence,
             iou=self.config.iou,
+            agnostic_nms=self.config.agnostic_nms,
             device=self.config.device,
             verbose=False,
         )
@@ -75,7 +76,40 @@ class YOLODetector:
                     mask=mask,
                 )
             )
+
+        if self.config.agnostic_nms and len(detections) > 1:
+            detections = self._apply_cross_class_nms(detections, iou_threshold=self.config.iou)
+
         return detections
+
+    @staticmethod
+    def _apply_cross_class_nms(detections: list[Detection], iou_threshold: float = 0.45) -> list[Detection]:
+        """Suppresses duplicate overlapping detections across different classes on the same physical object."""
+        if len(detections) <= 1:
+            return detections
+        sorted_dets = sorted(detections, key=lambda d: d.confidence, reverse=True)
+        keep: list[Detection] = []
+        for det in sorted_dets:
+            suppress = False
+            for kept in keep:
+                ix1 = max(det.bbox[0], kept.bbox[0])
+                iy1 = max(det.bbox[1], kept.bbox[1])
+                ix2 = min(det.bbox[2], kept.bbox[2])
+                iy2 = min(det.bbox[3], kept.bbox[3])
+                iw = max(0.0, ix2 - ix1)
+                ih = max(0.0, iy2 - iy1)
+                inter = iw * ih
+                if inter > 0.0:
+                    a1 = max(0.0, det.bbox[2] - det.bbox[0]) * max(0.0, det.bbox[3] - det.bbox[1])
+                    a2 = max(0.0, kept.bbox[2] - kept.bbox[0]) * max(0.0, kept.bbox[3] - kept.bbox[1])
+                    union = a1 + a2 - inter
+                    iou = (inter / union) if union > 0.0 else 0.0
+                    if iou >= iou_threshold:
+                        suppress = True
+                        break
+            if not suppress:
+                keep.append(det)
+        return keep
 
     @staticmethod
     def _mask_for_box(result: Any, index: int, frame: object) -> object | None:

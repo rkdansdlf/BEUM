@@ -17,6 +17,7 @@ class DetectorConfig:
     device: str = "cpu"
     class_names: tuple[str, ...] = ("drain_area", "drain_full")
     mapping_mode: str = "auto"
+    agnostic_nms: bool = True
 
     @classmethod
     def from_dict(cls, value: dict[str, Any] | None) -> DetectorConfig:
@@ -30,6 +31,7 @@ class DetectorConfig:
             device=str(value.get("device", cls.device)),
             class_names=tuple(str(item) for item in value.get("class_names", cls.class_names)),
             mapping_mode=str(value.get("mapping_mode", cls.mapping_mode)),
+            agnostic_nms=bool(value.get("agnostic_nms", cls.agnostic_nms)),
         )
 
 
@@ -112,6 +114,8 @@ class BlockageConfig:
     critical_percent: float = 50.0
     event_change_percent: float = 10.0
     event_cooldown_s: float = 300.0
+    require_gully_presence: bool = True
+    standalone_min_conf: float = 0.85
 
     @classmethod
     def from_dict(cls, value: dict[str, Any] | None) -> BlockageConfig:
@@ -124,6 +128,8 @@ class BlockageConfig:
             critical_percent=float(value.get("critical_percent", cls.critical_percent)),
             event_change_percent=float(value.get("event_change_percent", cls.event_change_percent)),
             event_cooldown_s=float(value.get("event_cooldown_s", cls.event_cooldown_s)),
+            require_gully_presence=bool(value.get("require_gully_presence", cls.require_gully_presence)),
+            standalone_min_conf=float(value.get("standalone_min_conf", cls.standalone_min_conf)),
         )
 
 
@@ -154,6 +160,68 @@ class PolicyConfig:
 
 
 @dataclass(frozen=True)
+class TriageConfig:
+    enabled: bool = False
+    output_dir: str = "data/active_learning/triage"
+    uncertain_conf_range: tuple[float, float] = (0.15, 0.28)
+    borderline_warning_range: tuple[float, float] = (15.0, 28.0)
+    borderline_critical_range: tuple[float, float] = (45.0, 55.0)
+    cooldown_s: float = 2.0
+    max_candidates: int = 1000
+    save_images: bool = True
+    jpeg_quality: int = 85
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any] | None) -> TriageConfig:
+        if not value:
+            return cls()
+        u_range = value.get("uncertain_conf_range", cls.uncertain_conf_range)
+        w_range = value.get("borderline_warning_range", cls.borderline_warning_range)
+        c_range = value.get("borderline_critical_range", cls.borderline_critical_range)
+        return cls(
+            enabled=bool(value.get("enabled", cls.enabled)),
+            output_dir=str(value.get("output_dir", cls.output_dir)),
+            uncertain_conf_range=(float(u_range[0]), float(u_range[1])),
+            borderline_warning_range=(float(w_range[0]), float(w_range[1])),
+            borderline_critical_range=(float(c_range[0]), float(c_range[1])),
+            cooldown_s=float(value.get("cooldown_s", cls.cooldown_s)),
+            max_candidates=int(value.get("max_candidates", cls.max_candidates)),
+            save_images=bool(value.get("save_images", cls.save_images)),
+            jpeg_quality=int(value.get("jpeg_quality", cls.jpeg_quality)),
+        )
+
+
+@dataclass(frozen=True)
+class SensorConfig:
+    battery_file: str = ""
+    rain_file: str = ""
+    water_file: str = ""
+    rain_sensor_pin: int | None = None
+    water_sensor_pin: int | None = None
+    network_check_host: str = "8.8.8.8"
+    network_check_port: int = 53
+    network_check_timeout_s: float = 0.5
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any] | None) -> SensorConfig:
+        if not value:
+            return cls()
+        pin_rain = value.get("rain_sensor_pin")
+        pin_water = value.get("water_sensor_pin")
+        return cls(
+            battery_file=str(value.get("battery_file", cls.battery_file)),
+            rain_file=str(value.get("rain_file", cls.rain_file)),
+            water_file=str(value.get("water_file", cls.water_file)),
+            rain_sensor_pin=int(pin_rain) if pin_rain is not None else None,
+            water_sensor_pin=int(pin_water) if pin_water is not None else None,
+            network_check_host=str(value.get("network_check_host", cls.network_check_host)),
+            network_check_port=int(value.get("network_check_port", cls.network_check_port)),
+            network_check_timeout_s=float(value.get("network_check_timeout_s", cls.network_check_timeout_s)),
+        )
+
+
+
+@dataclass(frozen=True)
 class SystemConfig:
     source: str = "0"
     output_path: str = ""
@@ -179,6 +247,8 @@ class SystemConfig:
     gps: GPSConfig = field(default_factory=GPSConfig)
     blockage: BlockageConfig = field(default_factory=BlockageConfig)
     policy: PolicyConfig = field(default_factory=PolicyConfig)
+    triage: TriageConfig = field(default_factory=TriageConfig)
+    sensors: SensorConfig = field(default_factory=SensorConfig)
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> SystemConfig:
@@ -209,9 +279,12 @@ class SystemConfig:
             gps=GPSConfig.from_dict(value.get("gps", {})),
             blockage=BlockageConfig.from_dict(value.get("blockage", {})),
             policy=PolicyConfig.from_dict(value.get("policy", {})),
+            triage=TriageConfig.from_dict(value.get("triage", {})),
+            sensors=SensorConfig.from_dict(value.get("sensors", {})),
         )
 
     @classmethod
     def from_json(cls, path: str | Path) -> SystemConfig:
         with Path(path).open("r", encoding="utf-8") as stream:
             return cls.from_dict(json.load(stream))
+

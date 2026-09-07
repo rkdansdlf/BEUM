@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
 from gully_system.config import PolicyConfig
 from gully_system.sensors import SensorSnapshot
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -61,10 +64,34 @@ class DQNPolicy:
     def __init__(self, model_path: str, config: PolicyConfig) -> None:
         self.config = config
         self.model_path = model_path
+        self._model = None
+        self._action_to_mode = {0: "low", 1: "medium", 2: "high"}
+
+        path = Path(model_path) if model_path else None
+        if path and path.exists():
+            try:
+                from stable_baselines3 import DQN
+                self._model = DQN.load(str(path))
+                LOGGER.info("DQNPolicy successfully loaded model from %s", path)
+            except Exception as exc:
+                LOGGER.warning("Could not load DQN model from %s (%s). Using fallback mode.", path, exc)
 
     def decide(self, snapshot: SensorSnapshot) -> PolicyDecision:
+        if self._model is not None:
+            try:
+                import numpy as np
+                battery = snapshot.battery_pct if snapshot.battery_pct is not None else 100.0
+                obs = np.array([float(snapshot.rain_level), float(battery)], dtype=np.float32)
+                action, _ = self._model.predict(obs, deterministic=True)
+                mode = self._action_to_mode.get(int(action), "medium")
+                interval = self.config.mode_intervals.get(mode, 1.0)
+                return PolicyDecision(mode=mode, inference_interval_s=interval, reason=f"DQN RL inference (action={action})")
+            except Exception as exc:
+                LOGGER.warning("DQN inference failed: %s. Using default.", exc)
+
         interval = self.config.mode_intervals.get("medium", 1.0)
-        return PolicyDecision(mode="medium", inference_interval_s=interval, reason="DQN CPU placeholder")
+        return PolicyDecision(mode="medium", inference_interval_s=interval, reason="DQN fallback (default medium)")
+
 
 
 class SafePolicy:

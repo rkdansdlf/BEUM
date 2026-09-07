@@ -39,6 +39,8 @@ class BlockageAnalyzer:
         obstacle_class_names: tuple[str, ...] = ("drain_full", "debris", "sediment", "trash", "leaf"),
         warning_percent: float = 20.0,
         critical_percent: float = 50.0,
+        require_gully_presence: bool = True,
+        standalone_min_conf: float = 0.85,
     ) -> None:
         if critical_percent < warning_percent:
             raise ValueError("critical_percent must be >= warning_percent")
@@ -46,6 +48,34 @@ class BlockageAnalyzer:
         self.obstacle_class_names = {name.lower() for name in obstacle_class_names}
         self.warning_percent = float(warning_percent)
         self.critical_percent = float(critical_percent)
+        self.require_gully_presence = bool(require_gully_presence)
+        self.standalone_min_conf = float(standalone_min_conf)
+
+    @staticmethod
+    def _box_intersects(b1: tuple[float, float, float, float], b2: tuple[float, float, float, float], margin_ratio: float = 0.20) -> bool:
+        x1_1, y1_1, x2_1, y2_1 = b1
+        x1_2, y1_2, x2_2, y2_2 = b2
+        w1 = max(1.0, x2_1 - x1_1)
+        h1 = max(1.0, y2_1 - y1_1)
+        mx = w1 * margin_ratio
+        my = h1 * margin_ratio
+        return not (x2_1 + mx < x1_2 or x2_2 < x1_1 - mx or y2_1 + my < y1_2 or y2_2 < y1_1 - my)
+
+    @staticmethod
+    def _box_iou(b1: tuple[float, float, float, float], b2: tuple[float, float, float, float]) -> float:
+        ix1 = max(b1[0], b2[0])
+        iy1 = max(b1[1], b2[1])
+        ix2 = min(b1[2], b2[2])
+        iy2 = min(b1[3], b2[3])
+        iw = max(0.0, ix2 - ix1)
+        ih = max(0.0, iy2 - iy1)
+        inter = iw * ih
+        if inter <= 0.0:
+            return 0.0
+        a1 = max(0.0, b1[2] - b1[0]) * max(0.0, b1[3] - b1[1])
+        a2 = max(0.0, b2[2] - b2[0]) * max(0.0, b2[3] - b2[1])
+        union = a1 + a2 - inter
+        return inter / union if union > 0.0 else 0.0
 
     @staticmethod
     def _bbox_mask(bbox: tuple[float, float, float, float], height: int, width: int) -> object:
@@ -125,8 +155,25 @@ class BlockageAnalyzer:
         gully_union = self._union(gully_masks, height, width) if gully_masks else np.zeros((height, width), dtype=np.uint8)
         obstacle_union = self._union(obstacle_masks, height, width) if obstacle_masks else np.zeros((height, width), dtype=np.uint8)
 
-        # In 2-class setup (drain_area, drain_full), drain_full itself represents a blocked drain.
-        # Total physical drain area is the union of visible grating (gully) and blocked area (obstacle).
+        if gullies and obstacles:
+            # Filter obstacles to only those that spatially associate with at least one gully
+            associated_obstacles = []
+            for o in obstacles:
+                o_mask, _ = self._detection_mask(o, height, width)
+                intersects_mask = bool(np.any(np.bitwise_and(gully_union, (o_mask > 0).astype(np.uint8))))
+                intersects_box = any(self._box_intersects(g.bbox, o.bbox) for g in gullies)
+                if intersects_mask or intersects_box:
+                    associated_obstacles.append(o)
+            obstacles = associated_obstacles
+
+            # Recalculate obstacle masks and union with only associated obstacles
+            obstacle_masks = []
+            for o in obstacles:
+                m, method = self._detection_mask(o, height, width)
+                obstacle_masks.append(m)
+                methods.add(method)
+            obstacle_union = self._union(obstacle_masks, height, width) if obstacle_masks else np.zeros((height, width), dtype=np.uint8)
+
         total_drain_union = np.bitwise_or(gully_union, obstacle_union)
         total_drain_area_px = int(np.count_nonzero(total_drain_union))
 
@@ -143,19 +190,53 @@ class BlockageAnalyzer:
             )
 
         if not gullies and obstacles:
-            # 100% blocked drain (e.g. drain_full alone)
-            blocked_area_px = total_drain_area_px
-            coverage_percent = 100.0
-            gully_count = len(obstacles)
+            # Standalone obstacle without a detected drain grating:
+            # Low-confidence false alarms on sky, trees, road markings, car wheels, or asphalt must be rejected.
+            max_conf = max((getattr(o, "confidence", 0.0) for o in obstacles), default=0.0)
+            if (not self.require_gully_presence) and max_conf >= self.standalone_min_conf:
+                blocked_area_px = total_drain_area_px
+                coverage_percent = 100.0
+                gully_count = len(obstacles)
+            else:
+                return BlockageMetrics(
+                    status="no_gully",
+                    coverage_percent=0.0,
+                    blocked_area_px=0,
+                    gully_area_px=0,
+                    gully_count=0,
+                    obstacle_count=len(obstacles),
+                    method="none",
+                    confidence=max_conf,
+                )
         elif gullies and not obstacles:
             # Clean drain (only drain_area)
             blocked_area_px = 0
             coverage_percent = 0.0
             gully_count = len(gullies)
         else:
-            # Both detected: blocked area is the obstacle union
-            blocked_area_px = int(np.count_nonzero(obstacle_union))
-            coverage_percent = min(100.0, (blocked_area_px / total_drain_area_px) * 100.0)
+            # Both detected: check if any gully and obstacle are co-located duplicate predictions
+            # on the same physical structure (e.g. non-slip textured steel plate)
+            is_colocated_duplicate = False
+            for g in gullies:
+                for o in obstacles:
+                    if self._box_iou(g.bbox, o.bbox) >= 0.55:
+                        # High bbox IoU between drain_area and drain_full indicates class ambiguity on texture
+                        if g.confidence >= 0.70 and abs(g.confidence - o.confidence) < 0.25:
+                            is_colocated_duplicate = True
+                            break
+                if is_colocated_duplicate:
+                    break
+
+            if is_colocated_duplicate:
+                # When co-located duplicate predictions compete on a clean textured plate,
+                # only count true non-gully occlusion area rather than double-counting
+                unique_obstacle_mask = np.bitwise_and(obstacle_union, np.bitwise_not(gully_union))
+                blocked_area_px = int(np.count_nonzero(unique_obstacle_mask))
+                coverage_percent = min(100.0, (blocked_area_px / total_drain_area_px) * 100.0)
+            else:
+                blocked_area_px = int(np.count_nonzero(obstacle_union))
+                coverage_percent = min(100.0, (blocked_area_px / total_drain_area_px) * 100.0)
+
             gully_count = max(len(gullies), len(obstacles))
 
         if coverage_percent >= self.critical_percent:
