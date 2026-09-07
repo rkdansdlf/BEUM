@@ -26,6 +26,7 @@ from gully_system.policy import PolicyDecision, RuleBasedPolicy, SafePolicy, Tab
 from gully_system.roi import ROI
 from gully_system.sensors import SensorProvider, SensorSnapshot, SystemSensorProvider
 from gully_system.temporal_filter import TemporalFilter
+from gully_system.triage import ActiveLearningTriager
 from gully_system.types import Detection
 from gully_system.uploader import HttpUploader, NullUploader, UploadWorker
 
@@ -38,10 +39,40 @@ class GullyRuntime:
         config: SystemConfig,
         sensor_provider: SensorProvider | None = None,
         detector: YOLODetector | None = None,
+        triager: ActiveLearningTriager | None = None,
     ) -> None:
         self.config = config
-        self.sensor_provider = sensor_provider or SystemSensorProvider()
+        if sensor_provider:
+
+            self.sensor_provider = sensor_provider
+        elif hasattr(config, "sensors"):
+            self.sensor_provider = SystemSensorProvider(
+                battery_file=config.sensors.battery_file or None,
+                rain_file=config.sensors.rain_file or None,
+                water_file=config.sensors.water_file or None,
+                rain_pin=config.sensors.rain_sensor_pin,
+                water_pin=config.sensors.water_sensor_pin,
+                network_check_host=config.sensors.network_check_host,
+                network_check_port=config.sensors.network_check_port,
+                network_check_timeout_s=config.sensors.network_check_timeout_s,
+            )
+        else:
+            self.sensor_provider = SystemSensorProvider()
+
         self.detector = detector or YOLODetector(config.detector)
+        self.triager = triager
+        if self.triager is None and getattr(config, "triage", None) and config.triage.enabled:
+            self.triager = ActiveLearningTriager(
+                output_dir=config.triage.output_dir,
+                uncertain_conf_range=config.triage.uncertain_conf_range,
+                borderline_warning_range=config.triage.borderline_warning_range,
+                borderline_critical_range=config.triage.borderline_critical_range,
+                cooldown_s=config.triage.cooldown_s,
+                max_candidates=config.triage.max_candidates,
+                save_images=config.triage.save_images,
+                jpeg_quality=config.triage.jpeg_quality,
+            )
+
         self.camera = CameraSource(
             source=config.source,
             realtime=config.realtime_source,
@@ -69,6 +100,8 @@ class GullyRuntime:
             obstacle_class_names=analyzer_obstacles,
             warning_percent=config.blockage.warning_percent,
             critical_percent=config.blockage.critical_percent,
+            require_gully_presence=config.blockage.require_gully_presence,
+            standalone_min_conf=config.blockage.standalone_min_conf,
         )
         self.event_gate = BlockageEventGate(
             change_percent=config.blockage.event_change_percent,
@@ -157,11 +190,138 @@ class GullyRuntime:
     def _draw_detections(self, frame: Any, detections: tuple[Detection, ...]) -> None:
         try:
             import cv2
+            import numpy as np
+
+            if not detections:
+                return
+
+            height, width = frame.shape[:2]
+
+            class_colors = {
+                "drain_area": (0, 220, 0),    # Clear drain grating (Green)
+                "drain_full": (0, 0, 230),    # Blockage / clogged area (Red)
+                "gully": (0, 220, 0),
+                "debris": (0, 0, 230),
+                "trash": (0, 0, 230),
+                "leaf": (0, 140, 255),
+            }
+            default_color = (255, 120, 0)     # Blue/Orange
+
+            # 1. Mutually exclusive mask segmentation (prevent muddy blended layers)
+            obstacle_mask = np.zeros((height, width), dtype=bool)
+            gully_mask = np.zeros((height, width), dtype=bool)
+            other_masks: list[tuple[np.ndarray, tuple[int, int, int]]] = []
+
             for d in detections:
+                if d.mask is not None and hasattr(d.mask, "shape") and d.mask.shape[:2] == (height, width):
+                    m_bool = d.mask > 0
+                    if not np.any(m_bool):
+                        continue
+                    c_name = d.class_name.lower()
+                    if c_name in ("drain_full", "debris", "trash"):
+                        obstacle_mask |= m_bool
+                    elif c_name in ("drain_area", "gully"):
+                        gully_mask |= m_bool
+                    else:
+                        other_masks.append((m_bool, class_colors.get(c_name, default_color)))
+
+            # Mutually exclusive partition:
+            # Blocked area is pure obstacle_mask (Red)
+            # Clear grating area is gully_mask EXCLUDING obstacle_mask (Green)
+            clear_gully_mask = gully_mask & (~obstacle_mask)
+
+            overlay = frame.copy()
+            has_overlay = False
+
+            if np.any(clear_gully_mask):
+                overlay[clear_gully_mask] = (0, 220, 0)
+                has_overlay = True
+
+            if np.any(obstacle_mask):
+                overlay[obstacle_mask] = (0, 0, 230)
+                has_overlay = True
+
+            for m_bool, col in other_masks:
+                valid_m = m_bool & (~obstacle_mask)
+                if np.any(valid_m):
+                    overlay[valid_m] = col
+                    has_overlay = True
+
+            if has_overlay:
+                cv2.addWeighted(overlay, 0.45, frame, 0.55, 0, dst=frame)
+                # Sharp contour outlines for visual distinction
+                if np.any(clear_gully_mask):
+                    contours, _ = cv2.findContours(clear_gully_mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    cv2.drawContours(frame, contours, -1, (0, 220, 0), 2)
+                if np.any(obstacle_mask):
+                    contours, _ = cv2.findContours(obstacle_mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    cv2.drawContours(frame, contours, -1, (0, 0, 230), 2)
+
+            # 2. Collision-free bounding box and label badge rendering
+            occupied_badges: list[tuple[int, int, int, int]] = []
+            sorted_dets = sorted(detections, key=lambda x: (x.class_name != "drain_full", x.bbox[1], x.bbox[0]))
+
+            for d in sorted_dets:
+                c_name = d.class_name.lower()
+                color = class_colors.get(c_name, default_color)
                 x1, y1, x2, y2 = [int(v) for v in d.bbox]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 100, 0), 2)
+                x1, y1 = max(0, x1), max(0, y1)
+                x2, y2 = min(width - 1, x2), min(height - 1, y2)
+
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
                 label = f"{d.class_name} {d.confidence:.2f}"
-                cv2.putText(frame, label, (x1, max(15, y1 - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                (tw, th), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+                bw = tw + 8
+                bh = th + baseline + 6
+
+                # Candidate slots in order of preference
+                candidates = [
+                    (x1, y1 - bh, x1 + bw, y1),                             # 1. Above top-left
+                    (x1, y1, x1 + bw, y1 + bh),                             # 2. Inside top-left
+                    (max(0, x2 - bw), y1 - bh, max(0, x2 - bw) + bw, y1),   # 3. Above top-right
+                    (max(0, x2 - bw), y1, max(0, x2 - bw) + bw, y1 + bh),   # 4. Inside top-right
+                    (x1, y2, x1 + bw, y2 + bh),                             # 5. Below bottom-left
+                    (x1, max(0, y1 - 2 * bh - 2), x1 + bw, max(0, y1 - bh - 2)), # 6. Stacked above
+                ]
+
+                chosen_slot = None
+                for cx1, cy1, cx2, cy2 in candidates:
+                    if cy1 < 0 or cy2 > height or cx1 < 0 or cx2 > width:
+                        continue
+                    collision = False
+                    for ox1, oy1, ox2, oy2 in occupied_badges:
+                        if not (cx2 + 2 <= ox1 or cx1 >= ox2 + 2 or cy2 + 2 <= oy1 or cy1 >= oy2 + 2):
+                            collision = True
+                            break
+                    if not collision:
+                        chosen_slot = (cx1, cy1, cx2, cy2)
+                        break
+
+                if chosen_slot is None:
+                    chosen_slot = (
+                        min(max(0, x1), width - bw),
+                        min(max(0, y1), height - bh),
+                        min(max(0, x1) + bw, width),
+                        min(max(0, y1) + bh, height),
+                    )
+
+                bx1, by1, bx2, by2 = chosen_slot
+                occupied_badges.append((bx1, by1, bx2, by2))
+
+                # Draw solid badge with crisp 1px border
+                cv2.rectangle(frame, (bx1, by1), (bx2, by2), color, -1)
+                cv2.rectangle(frame, (bx1, by1), (bx2, by2), (255, 255, 255), 1)
+                cv2.putText(
+                    frame,
+                    label,
+                    (bx1 + 4, by1 + th + 3),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 255, 255),
+                    1,
+                    cv2.LINE_AA,
+                )
         except Exception:
             pass
 
@@ -180,6 +340,7 @@ class GullyRuntime:
             "blockage": blockage.to_dict(),
             "policy": {
                 "mode": decision.mode,
+                "interval_s": decision.inference_interval_s,
                 "roi_profile": decision.roi_profile,
                 "reason": decision.reason,
             },
@@ -218,6 +379,8 @@ class GullyRuntime:
         frame_count = 0
         inference_count = 0
         event_count = 0
+        harvested_count = 0
+
         next_inference_at = 0.0
         next_policy_at = 0.0
         next_upload_at = 0.0
@@ -242,7 +405,7 @@ class GullyRuntime:
                             if writer:
                                 writer.release()
                             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-                            writer = cv2.VideoWriter(self.config.output_path, fourcc, max(10, int(self.camera.fps)), (w, h))
+                            writer = cv2.VideoWriter(self.config.output_path, fourcc, max(10, int(self.camera.fps)), (frame_w, frame_h))
 
                 now = time.monotonic()
 
@@ -262,6 +425,22 @@ class GullyRuntime:
                 temporal = self.temporal_filter.update(list(in_roi))
                 blockage = self.analyzer.analyze(frame, temporal.validated)
 
+                # Active Learning Auto-Triage on clean frame before rendering overlays
+                if self.triager and raw_detections:
+                    cand = self.triager.evaluate_frame(
+                        frame=frame,
+                        raw_detections=raw_detections,
+                        blockage=blockage,
+                        gps_fix=self.gps_provider.latest(),
+                    )
+                    if cand:
+                        harvested_count += 1
+
+                # Annotate frame with ROI, detection boxes/masks, and blockage status
+                active_roi.draw(frame)
+                self._draw_detections(frame, temporal.validated)
+                self.analyzer.draw(frame, blockage)
+
                 if self.event_gate.should_emit(blockage, now=now):
                     gps_fix = self.gps_provider.latest()
                     event = self._event_payload(temporal.validated, current_decision, current_snapshot, gps_fix, blockage)
@@ -272,10 +451,6 @@ class GullyRuntime:
                 if now >= next_upload_at:
                     self.upload_worker.flush_once(max_items=5)
                     next_upload_at = now + self.config.upload.flush_interval_s
-
-                active_roi.draw(frame)
-                self._draw_detections(frame, temporal.validated)
-                self.analyzer.draw(frame, blockage)
 
                 if writer:
                     writer.write(frame)
@@ -299,10 +474,11 @@ class GullyRuntime:
                 pass
 
         LOGGER.info(
-            "Finished: frames=%d inferences=%d events=%d pending=%d storage=%d bytes",
+            "Finished: frames=%d inferences=%d events=%d harvested=%d pending=%d storage=%d bytes",
             frame_count,
             inference_count,
             event_count,
+            harvested_count,
             self.queue.pending_count(),
             self.queue.usage_bytes(),
         )
@@ -311,6 +487,7 @@ class GullyRuntime:
             "frames": frame_count,
             "inferences": inference_count,
             "events": event_count,
+            "harvested_candidates": harvested_count,
             "pending": self.queue.pending_count(),
             "dropped_frames": self.camera.dropped_frames,
         }
