@@ -4,20 +4,21 @@
   "max_frames": 0,
   "realtime_source": false,
   "camera_buffer_size": 2,
-  "roi_points": [[0, 0], [1080, 0], [1080, 1920], [0, 1920]],
+  "roi_points": [[0, 670], [1080, 670], [1080, 1920], [0, 1920]],
   "roi_expanded_scale": 1.0,
-  "temporal_hits": 1,
-  "temporal_max_missed": 1,
+  "temporal_hits": 3,
+  "temporal_max_missed": 2,
   "temporal_iou": 0.3,
   "policy_interval_s": 1.0,
   "detector": {
-    "model_path": "models/edge_exports/best-seg-2class_320.onnx",
+    "model_path": "models/best-seg-2class_320.onnx",
     "image_size": 320,
-    "confidence": 0.15,
+    "confidence": 0.45,
     "iou": 0.45,
     "device": "cpu",
     "class_names": ["drain_area", "drain_full"],
-    "mapping_mode": "auto"
+    "mapping_mode": "auto",
+    "agnostic_nms": true
   },
   "storage": {
     "spool_dir": "data/spool",
@@ -26,8 +27,8 @@
     "jpeg_quality": 80
   },
   "upload": {
-    "url": "http://127.0.0.1:8001/upload",
-    "token": "beum-secret-token",
+    "url": "http://172.30.1.46:8000/upload",
+    "token": "",
     "timeout_s": 10.0,
     "flush_interval_s": 5.0,
     "base_backoff_s": 5.0,

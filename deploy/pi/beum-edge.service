@@ -1,0 +1,21 @@
+[Unit]
+Description=BEUM Drainage Blockage Monitoring Edge Service
+After=network.target time-sync.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/BEUM
+ExecStart=/home/pi/BEUM/.venv-pi/bin/python -m gully_system.main --config /home/pi/BEUM/config.pi.json
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+Environment=PYTHONUNBUFFERED=1
+Environment=YOLO_CONFIG_DIR=/home/pi/BEUM/.ultralytics
+
+[Install]
+WantedBy=multi-user.target

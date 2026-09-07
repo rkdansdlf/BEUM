@@ -48,7 +48,7 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="models/edge_exports/best-seg-2class_320.onnx",
+        default="models/deploy/best-seg-canonical.onnx",
         help="Path to edge model (.pt or .onnx)",
     )
     parser.add_argument(
@@ -116,8 +116,8 @@ def main():
         roi_points=((0, 0), (1080, 0), (1080, 1920), (0, 1920)),
         detector=DetectorConfig(
             model_path=str(PROJECT_ROOT / args.model),
-            image_size=320 if "320" in args.model else 640,
-            confidence=0.15,
+            image_size=640,
+            confidence=0.20,
             iou=0.45,
             device="cpu",
             class_names=["drain_area", "drain_full"],

@@ -182,9 +182,11 @@ class WebViewerHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         if self.path in ("/", "/index.html"):
             self._serve_index()
-        elif self.path == "/stream.mjpg":
+        elif self.path.startswith("/stream.mjpg"):
             self._serve_stream()
-        elif self.path == "/status.json":
+        elif self.path.startswith("/snapshot.jpg") or self.path.startswith("/frame.jpg"):
+            self._serve_snapshot()
+        elif self.path.startswith("/status.json"):
             self._serve_status()
         else:
             self.send_error(404, "Not Found")
@@ -232,7 +234,7 @@ class WebViewerHandler(BaseHTTPRequestHandler):
                 <span id="cam-badge" class="badge badge-warn">확인 중</span>
             </div>
             <div class="video-box">
-                <img src="/stream.mjpg" alt="Live Stream" />
+                <img id="live-stream-img" src="/stream.mjpg" alt="Live Stream" />
             </div>
             <div style="margin-top: 12px;">
                 <div class="info-row"><span class="info-label">입력 소스</span><span id="cam-src" class="info-val">-</span></div>
@@ -325,6 +327,35 @@ class WebViewerHandler(BaseHTTPRequestHandler):
             }
         }
 
+        // Automatic Safari / WebKit fallback: If multipart/x-mixed-replace fails, poll snapshot
+        const streamImg = document.getElementById('live-stream-img');
+        let fallbackActive = false;
+
+        function startFallbackStream() {
+            if (fallbackActive) return;
+            fallbackActive = true;
+            console.log("Activating high-speed snapshot stream...");
+            function loadNext() {
+                const nextImg = new Image();
+                nextImg.onload = () => {
+                    streamImg.src = nextImg.src;
+                    setTimeout(loadNext, 50); // ~20 FPS
+                };
+                nextImg.onerror = () => setTimeout(loadNext, 200);
+                nextImg.src = '/snapshot.jpg?t=' + Date.now();
+            }
+            loadNext();
+        }
+
+        if (streamImg) {
+            streamImg.onerror = startFallbackStream;
+            setTimeout(() => {
+                if (!streamImg.complete || streamImg.naturalWidth === 0) {
+                    startFallbackStream();
+                }
+            }, 1200);
+        }
+
         setInterval(updateStatus, 1000);
         updateStatus();
     </script>
@@ -337,6 +368,21 @@ class WebViewerHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def _serve_snapshot(self) -> None:
+        with GLOBAL_STATE.lock:
+            jpeg = GLOBAL_STATE.current_frame_jpeg
+        if jpeg is None:
+            self.send_error(503, "No frame available")
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "image/jpeg")
+        self.send_header("Content-Length", str(len(jpeg)))
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        self.end_headers()
+        self.wfile.write(jpeg)
 
     def _serve_status(self) -> None:
         with GLOBAL_STATE.lock:
@@ -376,16 +422,20 @@ class WebViewerHandler(BaseHTTPRequestHandler):
     def _serve_stream(self) -> None:
         self.send_response(200)
         self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
+        self.send_header("Cache-Control", "no-cache, private")
+        self.send_header("Pragma", "no-cache")
         self.end_headers()
         try:
             while True:
                 with GLOBAL_STATE.lock:
                     jpeg = GLOBAL_STATE.current_frame_jpeg
                 if jpeg is not None:
-                    self.wfile.write(b"--frame\r\n")
-                    self.send_header("Content-Type", "image/jpeg")
-                    self.send_header("Content-Length", str(len(jpeg)))
-                    self.end_headers()
+                    header = (
+                        b"--frame\r\n"
+                        b"Content-Type: image/jpeg\r\n"
+                        + f"Content-Length: {len(jpeg)}\r\n\r\n".encode("ascii")
+                    )
+                    self.wfile.write(header)
                     self.wfile.write(jpeg)
                     self.wfile.write(b"\r\n")
                 time.sleep(0.066)  # ~15 FPS cap for web preview

@@ -63,7 +63,8 @@ def main():
         confidence=args.conf,
         iou=0.45,
         device="mps",
-        class_names=["object", "drain_area", "drain_full"]
+        class_names=("drain_area", "drain_full"),
+        mapping_mode="auto",
     )
     detector = YOLODetector(detector_cfg)
 

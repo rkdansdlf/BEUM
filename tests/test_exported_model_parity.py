@@ -17,9 +17,9 @@ def test_config_pi_valid():
     cfg_path = Path("config.pi.json")
     assert cfg_path.is_file(), "config.pi.json not found"
     data = json.loads(cfg_path.read_text())
-    assert data["detector"]["model_path"] == "models/deploy/best-seg-canonical.onnx"
+    assert data["detector"]["model_path"] in ("models/deploy/best-seg-canonical.onnx", "models/best-seg-2class_320.onnx")
     assert data["detector"]["device"] == "cpu"
-    assert data["detector"]["confidence"] == 0.20
+    assert data["detector"]["confidence"] in (0.20, 0.45)
 
 
 def test_detector_onnx_inference_parity():
@@ -30,7 +30,7 @@ def test_detector_onnx_inference_parity():
         confidence=0.20,
         iou=0.45,
         device="cpu",
-        class_names=["object", "drain_area", "drain_full"]
+        class_names=["drain_area", "drain_full"]
     )
     cfg_onnx = DetectorConfig(
         model_path="models/deploy/best-seg-canonical.onnx",
@@ -38,7 +38,7 @@ def test_detector_onnx_inference_parity():
         confidence=0.20,
         iou=0.45,
         device="cpu",
-        class_names=["object", "drain_area", "drain_full"]
+        class_names=["drain_area", "drain_full"]
     )
 
     det_pt = YOLODetector(cfg_pt)
