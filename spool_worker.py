@@ -26,13 +26,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger("SpoolWorker")
 
-PROJECT_ROOT = Path("/Users/mac/project/BEUM")
+PROJECT_ROOT = Path(os.environ.get("BEUM_ROOT", Path(__file__).resolve().parent))
 PENDING_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "pending"
 PROCESSING_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "processing"
 DONE_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "done"
-RECEIVER_URL = "http://127.0.0.1:8000/upload"
-MODEL_PATH = PROJECT_ROOT / "models" / "best-seg-3class.pt"
-PYTHON_EXEC = PROJECT_ROOT / ".venv" / "bin" / "python3"
+RECEIVER_URL = os.environ.get("BEUM_RECEIVER_URL", "http://127.0.0.1:8000/upload")
+
+
+def _find_default_model(root: Path) -> Path:
+    candidates = [
+        root / "models" / "edge_exports" / "best-seg-2class_320.onnx",
+        root / "models" / "best-seg-2class.pt",
+        root / "models" / "best-seg-3class.pt",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return root / "models" / "best-seg-3class.pt"
+
+
+MODEL_PATH = Path(os.environ.get("BEUM_MODEL_PATH", str(_find_default_model(PROJECT_ROOT))))
+PYTHON_EXEC = Path(os.environ.get("BEUM_PYTHON_EXEC", sys.executable))
 
 POLL_INTERVAL = 10.0
 MAX_CONCURRENT = 1
@@ -290,11 +304,32 @@ def worker_loop():
 
 
 def main():
+    import argparse
+
+    global PROJECT_ROOT, PENDING_DIR, PROCESSING_DIR, DONE_DIR, RECEIVER_URL, MODEL_PATH, POLL_INTERVAL
+
+    parser = argparse.ArgumentParser(description="DrainSight Spool Worker")
+    parser.add_argument("--project-root", default=str(PROJECT_ROOT), help="Project root directory")
+    parser.add_argument("--receiver-url", default=str(RECEIVER_URL), help="Receiver upload URL")
+    parser.add_argument("--model-path", default=str(MODEL_PATH), help="Model weights path")
+    parser.add_argument("--poll-interval", type=float, default=POLL_INTERVAL, help="Polling interval in seconds")
+    args = parser.parse_args()
+
+    PROJECT_ROOT = Path(args.project_root)
+    PENDING_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "pending"
+    PROCESSING_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "processing"
+    DONE_DIR = PROJECT_ROOT / "data" / "spool_e2e" / "done"
+    RECEIVER_URL = args.receiver_url
+    MODEL_PATH = Path(args.model_path)
+    POLL_INTERVAL = args.poll_interval
+
+
     logger.info("=" * 60)
     logger.info("DrainSight Spool Worker")
     logger.info(f"Project root: {PROJECT_ROOT}")
     logger.info(f"Pending dir: {PENDING_DIR}")
     logger.info(f"Receiver: {RECEIVER_URL}")
+    logger.info(f"Model: {MODEL_PATH}")
     logger.info("=" * 60)
 
     worker_loop()

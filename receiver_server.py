@@ -32,7 +32,7 @@ from logging.handlers import RotatingFileHandler
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request, WebSocket, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from starlette.concurrency import run_in_threadpool
 import uvicorn
 
@@ -66,11 +66,15 @@ class ReceiverApp:
         data_dir: str | Path = "received_data",
         token: str = "",
         title: str = "BEUM Central Receiver Server",
+        spatial_dedup: bool = False,
+        dedup_radius_m: float = 5.0,
     ) -> None:
         self.data_dir = Path(data_dir)
         self.images_dir = self.data_dir / "images"
         self.db_path = self.data_dir / "beum_events.db"
         self.token = token.strip() if token else ""
+        self.spatial_dedup = bool(spatial_dedup or os.environ.get("BEUM_SPATIAL_DEDUP", "").lower() in ("1", "true", "yes"))
+        self.dedup_radius_m = float(dedup_radius_m)
         self.pending_silence_checks: dict[tuple[int | str, str], asyncio.Task] = {}
         self.active_silence_keys: set[tuple[int | str, str]] = set()
 
@@ -82,6 +86,8 @@ class ReceiverApp:
             images_dir=self.images_dir,
         )
         self.app.include_router(self.adapter.router)
+        self.app.include_router(self.adapter.camera_router)
+        self.app.include_router(self.adapter.gps_router)
         self._setup_middleware()
         self._setup_routes()
 
@@ -175,15 +181,43 @@ class ReceiverApp:
         coverage_percent = float(
             blockage.get("coverage_percent")
             if blockage.get("coverage_percent") is not None
-            else (event_data.get("coverage_percent", 0.0) or 0.0)
+            else (event_data.get("coverage_percent") or event_data.get("blockage_percent") or 0.0)
         )
-        occlusion_pct = event_data.get("occlusion_pct")
+        occlusion_pct = event_data.get("occlusion_pct") or event_data.get("occlusion_percent")
         if occlusion_pct is None:
             occlusion_pct = coverage_percent
 
-        status_val = str(blockage.get("status") or event_data.get("status", "") or "")
+        status_val = str(blockage.get("status") or event_data.get("status") or event_data.get("blockage_status") or "")
 
         with self._get_connection() as conn:
+            target_event_id = event_id
+            if self.spatial_dedup and lat is not None and lon is not None:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    SELECT event_id, coverage_percent, has_image, image_path, received_at
+                    FROM events 
+                    WHERE source = ? 
+                      AND lat BETWEEN ? AND ? 
+                      AND lon BETWEEN ? AND ?
+                    ORDER BY received_at DESC LIMIT 1
+                    """,
+                    (
+                        str(event_data.get("source", "")),
+                        float(lat) - 0.00005,
+                        float(lat) + 0.00005,
+                        float(lon) - 0.00005,
+                        float(lon) + 0.00005,
+                    ),
+                )
+                existing = cur.fetchone()
+                if existing:
+                    # Spatial deduplication: update existing record within ~5m instead of creating duplicate map pins
+                    target_event_id = existing["event_id"]
+                    if image_path is None and existing["has_image"]:
+                        image_path = existing["image_path"]
+
             conn.execute(
                 """
                 INSERT OR REPLACE INTO events (
@@ -193,7 +227,7 @@ class ReceiverApp:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    event_id,
+                    target_event_id,
                     str(event_data.get("event_type", "unknown")),
                     str(event_data.get("source", "")),
                     str(event_data.get("created_at", "")),
@@ -210,6 +244,103 @@ class ReceiverApp:
                 ),
             )
             conn.commit()
+
+    def _dismiss_event_record(self, event_id: str, reason: str = "confirmed_fp") -> dict[str, Any] | None:
+        now_iso = datetime.now(timezone.utc).isoformat()
+        with self._get_connection(autocommit=True) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute("BEGIN IMMEDIATE")
+            try:
+                cur.execute("SELECT * FROM events WHERE event_id = ?", (event_id,))
+                row = cur.fetchone()
+                if not row:
+                    cur.execute("ROLLBACK")
+                    return None
+                rec = dict(row)
+                cur.execute(
+                    """
+                    INSERT OR REPLACE INTO events_false_positive_archive (
+                        event_id, event_type, source, created_at, received_at,
+                        blockage_status, coverage_percent, occlusion_pct,
+                        roi_profile, lat, lon, has_image, image_path,
+                        raw_payload, dismissed_at, dismiss_reason
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        rec["event_id"],
+                        rec.get("event_type"),
+                        rec.get("source"),
+                        rec.get("created_at"),
+                        rec.get("received_at"),
+                        rec.get("blockage_status"),
+                        rec.get("coverage_percent"),
+                        rec.get("occlusion_pct"),
+                        rec.get("roi_profile"),
+                        rec.get("lat"),
+                        rec.get("lon"),
+                        rec.get("has_image"),
+                        rec.get("image_path"),
+                        rec.get("raw_payload"),
+                        now_iso,
+                        reason,
+                    ),
+                )
+                cur.execute("DELETE FROM events WHERE event_id = ?", (event_id,))
+                cur.execute("COMMIT")
+                rec["dismissed_at"] = now_iso
+                rec["dismiss_reason"] = reason
+                return rec
+            except Exception:
+                cur.execute("ROLLBACK")
+                raise
+
+    def _dismiss_all_records(self, reason: str = "confirmed_fp") -> int:
+        now_iso = datetime.now(timezone.utc).isoformat()
+        with self._get_connection(autocommit=True) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            cur.execute("BEGIN IMMEDIATE")
+            try:
+                cur.execute("SELECT * FROM events")
+                rows = cur.fetchall()
+                count = len(rows)
+                for row in rows:
+                    rec = dict(row)
+                    cur.execute(
+                        """
+                        INSERT OR REPLACE INTO events_false_positive_archive (
+                            event_id, event_type, source, created_at, received_at,
+                            blockage_status, coverage_percent, occlusion_pct,
+                            roi_profile, lat, lon, has_image, image_path,
+                            raw_payload, dismissed_at, dismiss_reason
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            rec["event_id"],
+                            rec.get("event_type"),
+                            rec.get("source"),
+                            rec.get("created_at"),
+                            rec.get("received_at"),
+                            rec.get("blockage_status"),
+                            rec.get("coverage_percent"),
+                            rec.get("occlusion_pct"),
+                            rec.get("roi_profile"),
+                            rec.get("lat"),
+                            rec.get("lon"),
+                            rec.get("has_image"),
+                            rec.get("image_path"),
+                            rec.get("raw_payload"),
+                            now_iso,
+                            reason,
+                        ),
+                    )
+                cur.execute("DELETE FROM events")
+                cur.execute("COMMIT")
+                return count
+            except Exception:
+                cur.execute("ROLLBACK")
+                raise
 
     def _find_nearby_drains(
         self,
@@ -259,6 +390,12 @@ class ReceiverApp:
         vehicle_code: str,
         sequence: int,
         timestamp: float,
+        lat: float | None = None,
+        lng: float | None = None,
+        speed_mps: float | None = None,
+        client_ip: str | None = None,
+        nearest_drain_id: int | str | None = None,
+        distance_m: float | None = None,
     ) -> tuple[bool, str | None]:
         """
         Atomically inspects and updates vehicle telemetry state in SQLite.
@@ -289,16 +426,43 @@ class ReceiverApp:
                 now_iso = datetime.now(timezone.utc).isoformat()
                 cur.execute(
                     """
-                    INSERT INTO vehicle_telemetry_states (vehicle_code, last_sequence, last_timestamp, updated_at)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO vehicle_telemetry_states (
+                        vehicle_code, last_sequence, last_timestamp, updated_at, lat, lng, speed_mps, client_ip
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(vehicle_code) DO UPDATE SET
                         last_sequence = excluded.last_sequence,
                         last_timestamp = excluded.last_timestamp,
-                        updated_at = excluded.updated_at
+                        updated_at = excluded.updated_at,
+                        lat = COALESCE(excluded.lat, vehicle_telemetry_states.lat),
+                        lng = COALESCE(excluded.lng, vehicle_telemetry_states.lng),
+                        speed_mps = COALESCE(excluded.speed_mps, vehicle_telemetry_states.speed_mps),
+                        client_ip = COALESCE(excluded.client_ip, vehicle_telemetry_states.client_ip)
                     WHERE excluded.last_sequence > vehicle_telemetry_states.last_sequence
                     """,
-                    (vehicle_code, sequence, timestamp, now_iso),
+                    (vehicle_code, sequence, timestamp, now_iso, lat, lng, speed_mps, client_ip),
                 )
+                if lat is not None and lng is not None:
+                    cur.execute(
+                        """
+                        INSERT INTO telemetry_logs (
+                            vehicle_code, client_ip, lat, lng, speed_mps, sequence,
+                            device_timestamp, received_at, nearest_drain_id, distance_m
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            vehicle_code,
+                            client_ip,
+                            lat,
+                            lng,
+                            speed_mps,
+                            sequence,
+                            timestamp,
+                            now_iso,
+                            str(nearest_drain_id) if nearest_drain_id is not None else None,
+                            distance_m,
+                        ),
+                    )
                 cur.execute("COMMIT")
                 return True, None
             except Exception:
@@ -331,6 +495,10 @@ class ReceiverApp:
                 "total_events": total_events,
                 "auth_required": bool(self.token),
             }
+
+        @self.app.get("/", include_in_schema=False)
+        def root_redirect():
+            return RedirectResponse(url="/dashboard")
 
         @self.app.get("/dashboard", response_class=HTMLResponse, summary="DrainSight Web Control Dashboard")
         def dashboard_page():
@@ -516,11 +684,44 @@ class ReceiverApp:
             gps = event_data.get("gps") or {}
             plat = gps.get("lat") or gps.get("latitude")
             plon = gps.get("lon") or gps.get("longitude")
+            pspeed = gps.get("speed_mps") or gps.get("speed")
             nearby = self._find_nearby_drains(
                 float(plat) if plat is not None else None,
                 float(plon) if plon is not None else None,
                 radius_m=5.0,
             )
+
+            if plat is not None and plon is not None:
+                client_ip = request.client.host if request.client else "127.0.0.1"
+                src_dev = str(event_data.get("source", "edge_device"))
+                nearest_id = nearby[0]["id"] if nearby else None
+                nearest_dist = nearby[0]["distance_m"] if nearby else None
+                try:
+                    with self._get_connection() as conn:
+                        cur = conn.cursor()
+                        cur.execute(
+                            """
+                            INSERT INTO telemetry_logs (
+                                vehicle_code, client_ip, lat, lng, speed_mps, sequence,
+                                device_timestamp, received_at, nearest_drain_id, distance_m
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            (
+                                src_dev,
+                                client_ip,
+                                float(plat),
+                                float(plon),
+                                float(pspeed) if pspeed is not None else 0.0,
+                                None,
+                                None,
+                                received_at,
+                                str(nearest_id) if nearest_id is not None else None,
+                                nearest_dist,
+                            ),
+                        )
+                        conn.commit()
+                except Exception as exc:
+                    self.logger.warning("Failed to log telemetry from upload: %s", exc)
 
             await self.adapter.broadcast_event(
                 event_id=event_id,
@@ -537,13 +738,29 @@ class ReceiverApp:
                 "image_stored": saved_image_path is not None,
             }
 
-        async def _handle_telemetry_post(payload: TelemetryIn):
+        async def _handle_telemetry_post(payload: TelemetryIn, request: Request | None = None):
+            client_ip = "127.0.0.1"
+            if request and request.client:
+                client_ip = request.client.host
+
+            # Proximity calculation (<= 5.0m)
+            nearby = self._find_nearby_drains(payload.lat, payload.lng, radius_m=5.0)
+            nearby_ids = [d["id"] for d in nearby]
+            nearest_drain_id = nearby_ids[0] if nearby_ids else None
+            nearest_distance = nearby[0]["distance_m"] if nearby else None
+
             # Atomic TOCTOU-safe multi-worker state verification & transition
             accepted, reason = await run_in_threadpool(
                 self._update_vehicle_telemetry_atomic,
                 payload.vehicle_code,
                 payload.sequence,
                 payload.timestamp,
+                payload.lat,
+                payload.lng,
+                payload.speed_mps,
+                client_ip,
+                nearest_drain_id,
+                nearest_distance,
             )
             if not accepted:
                 return {
@@ -552,10 +769,6 @@ class ReceiverApp:
                     "reason": reason,
                     "sequence": payload.sequence,
                 }
-
-            # Proximity calculation (<= 5.0m)
-            nearby = self._find_nearby_drains(payload.lat, payload.lng, radius_m=5.0)
-            nearby_ids = [d["id"] for d in nearby]
 
             # Silence Timer Scheduling per (drain_id, vehicle_code)
             for d in nearby:
@@ -581,6 +794,9 @@ class ReceiverApp:
                 "timestamp": payload.timestamp,
                 "sequence": payload.sequence,
                 "speed_mps": payload.speed_mps,
+                "client_ip": client_ip,
+                "distance_m": nearest_distance,
+                "nearest_drain_id": nearest_drain_id,
                 "nearby_drains": nearby_ids,
                 "server_time": now_iso,
             }
@@ -593,15 +809,16 @@ class ReceiverApp:
                 "processed": True,
                 "nearby_drains": nearby_ids,
                 "sequence": payload.sequence,
+                "client_ip": client_ip,
             }
 
         @self.app.post("/api/telemetry", status_code=status.HTTP_200_OK, summary="Submit vehicle telemetry")
-        async def api_telemetry_endpoint(payload: TelemetryIn):
-            return await _handle_telemetry_post(payload)
+        async def api_telemetry_endpoint(payload: TelemetryIn, request: Request):
+            return await _handle_telemetry_post(payload, request)
 
         @self.app.post("/telemetry", status_code=status.HTTP_200_OK, summary="Telemetry endpoint alias")
-        async def telemetry_alias_endpoint(payload: TelemetryIn):
-            return await _handle_telemetry_post(payload)
+        async def telemetry_alias_endpoint(payload: TelemetryIn, request: Request):
+            return await _handle_telemetry_post(payload, request)
 
         @self.app.get("/events", status_code=status.HTTP_200_OK)
         def list_events(
@@ -680,6 +897,83 @@ class ReceiverApp:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image file missing from disk")
 
             return FileResponse(path, media_type="image/jpeg")
+
+        @self.app.post("/api/events/{event_id}/dismiss", status_code=status.HTTP_200_OK, summary="Dismiss event as false positive")
+        @self.app.delete("/events/{event_id}", status_code=status.HTTP_200_OK, summary="Dismiss/delete event")
+        async def dismiss_event_endpoint(
+            event_id: str,
+            reason: str = Query("confirmed_fp", description="Dismissal reason"),
+            authorization: Annotated[str | None, Header()] = None,
+        ):
+            self._verify_token(authorization)
+            archived = await run_in_threadpool(self._dismiss_event_record, event_id, reason)
+            if not archived:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found in active events")
+            if hasattr(self.adapter, "broadcast_dismissal"):
+                await self.adapter.broadcast_dismissal(event_id)
+            return {
+                "ok": True,
+                "event_id": event_id,
+                "status": "dismissed",
+                "reason": reason,
+                "dismissed_at": archived.get("dismissed_at"),
+            }
+
+        @self.app.post("/api/events/dismiss-all", status_code=status.HTTP_200_OK, summary="Dismiss all active events as false positives")
+        async def dismiss_all_events_endpoint(
+            reason: str = Query("confirmed_fp", description="Dismissal reason"),
+            authorization: Annotated[str | None, Header()] = None,
+        ):
+            self._verify_token(authorization)
+            count = await run_in_threadpool(self._dismiss_all_records, reason)
+            if hasattr(self.adapter, "broadcast_dismiss_all"):
+                await self.adapter.broadcast_dismiss_all()
+            return {
+                "ok": True,
+                "dismissed_count": count,
+                "status": "all_dismissed",
+                "reason": reason,
+            }
+
+        @self.app.get("/api/events/archived", status_code=status.HTTP_200_OK, summary="List archived false positive events")
+        def list_archived_events(
+            limit: int = Query(50, ge=1, le=500),
+            offset: int = Query(0, ge=0),
+        ):
+            with self._get_connection() as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT * FROM events_false_positive_archive ORDER BY dismissed_at DESC LIMIT ? OFFSET ?",
+                    (limit, offset),
+                )
+                rows = cur.fetchall()
+                cur.execute("SELECT COUNT(*) FROM events_false_positive_archive")
+                total = cur.fetchone()[0]
+
+            return {
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+                "archived_events": [
+                    {
+                        "event_id": row["event_id"],
+                        "event_type": row["event_type"],
+                        "source": row["source"],
+                        "created_at": row["created_at"],
+                        "received_at": row["received_at"],
+                        "blockage_status": row["blockage_status"],
+                        "coverage_percent": row["coverage_percent"],
+                        "occlusion_pct": row["occlusion_pct"],
+                        "lat": row["lat"],
+                        "lon": row["lon"],
+                        "has_image": bool(row["has_image"]),
+                        "dismissed_at": row["dismissed_at"],
+                        "dismiss_reason": row["dismiss_reason"],
+                    }
+                    for row in rows
+                ],
+            }
 
 
 def create_app(data_dir: str = "received_data", token: str = "") -> FastAPI:

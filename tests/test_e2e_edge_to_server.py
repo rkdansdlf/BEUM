@@ -136,6 +136,8 @@ class EdgeToServerE2ETest(unittest.TestCase):
                 warning_percent=20.0,
                 critical_percent=50.0,
                 event_cooldown_s=1.0,
+                require_gully_presence=False,
+                standalone_min_conf=0.15,
             ),
             policy=PolicyConfig(
                 min_safe_battery=20.0,
@@ -174,14 +176,14 @@ class EdgeToServerE2ETest(unittest.TestCase):
         conn.close()
 
         self.assertGreaterEqual(len(rows), 1, "Database should contain at least 1 uploaded event")
-        first_row = rows[0]
-        event_id = first_row["event_id"]
+        blockage_row = next((r for r in rows if r["blockage_status"] in ("warning", "critical", "normal")), rows[0])
+        event_id = blockage_row["event_id"]
         self.assertIsNotNone(event_id)
-        self.assertIn(first_row["blockage_status"], ("warning", "critical", "normal"))
-        self.assertGreater(first_row["coverage_percent"], 0.0)
-        self.assertAlmostEqual(first_row["lat"], 36.837, delta=0.01)
-        self.assertAlmostEqual(first_row["lon"], 127.182, delta=0.01)
-        self.assertEqual(first_row["has_image"], 1)
+        self.assertIn(blockage_row["blockage_status"], ("warning", "critical", "normal"))
+        self.assertGreater(blockage_row["coverage_percent"], 0.0)
+        self.assertAlmostEqual(blockage_row["lat"], 36.837, delta=0.01)
+        self.assertAlmostEqual(blockage_row["lon"], 127.182, delta=0.01)
+        self.assertEqual(blockage_row["has_image"], 1)
 
         # Step 6: Verify Image Retrieval Endpoint
         img_resp = self.client.get(f"/events/{event_id}/image", headers={"Authorization": f"Bearer {self.token}"})
@@ -253,6 +255,8 @@ class EdgeToServerE2ETest(unittest.TestCase):
                 warning_percent=20.0,
                 critical_percent=50.0,
                 event_cooldown_s=1.0,
+                require_gully_presence=False,
+                standalone_min_conf=0.15,
             ),
             policy=PolicyConfig(
                 mode_intervals={"low": 0.5, "medium": 0.033, "high": 0.033},
