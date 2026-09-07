@@ -31,11 +31,19 @@ MIGRATIONS: tuple[Migration, ...] = (
     Migration("0001", "initial_schema", MIGRATIONS_DIR / "0001_initial_schema.sql"),
     Migration("0002", "add_event_metrics", MIGRATIONS_DIR / "0002_add_event_metrics.sql"),
     Migration("0003", "add_monitoring_tables", MIGRATIONS_DIR / "0003_add_monitoring_tables.sql"),
+    Migration("0004", "add_false_positive_archive", MIGRATIONS_DIR / "0004_add_false_positive_archive.sql"),
+    Migration("0005", "add_gps_telemetry_logs", MIGRATIONS_DIR / "0005_add_gps_telemetry_logs.sql"),
 )
 
 _ADD_EVENT_COLUMN = re.compile(
     r"^\s*ALTER\s+TABLE\s+events\s+ADD\s+COLUMN\s+"
     r"(?P<column>[A-Za-z_][A-Za-z0-9_]*)\s+REAL\s*;?\s*$",
+    re.IGNORECASE,
+)
+
+_ADD_TELEMETRY_COLUMN = re.compile(
+    r"^\s*ALTER\s+TABLE\s+vehicle_telemetry_states\s+ADD\s+COLUMN\s+"
+    r"(?P<column>[A-Za-z_][A-Za-z0-9_]*)\s+(?P<type>[A-Za-z0-9_]+)\s*;?\s*$",
     re.IGNORECASE,
 )
 
@@ -85,6 +93,20 @@ def _apply_event_metrics(conn: sqlite3.Connection, path: Path) -> None:
         conn.execute(statement)
 
 
+def _apply_telemetry_logs(conn: sqlite3.Connection, path: Path) -> None:
+    """Apply telemetry logs migration safely, skipping columns if already present."""
+    columns = _table_columns(conn, "vehicle_telemetry_states")
+    for statement in _sql_statements(path.read_text(encoding="utf-8")):
+        match = _ADD_TELEMETRY_COLUMN.match(statement)
+        if match:
+            column = match.group("column")
+            if column not in columns:
+                conn.execute(statement)
+                columns.add(column)
+            continue
+        conn.execute(statement)
+
+
 def _open_connection(db_path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path, timeout=15.0, isolation_level=None)
     conn.execute("PRAGMA busy_timeout=15000")
@@ -125,6 +147,8 @@ def migrate_database(db_path: str | Path) -> list[str]:
 
                 if migration.version == "0002":
                     _apply_event_metrics(conn, migration.path)
+                elif migration.version == "0005":
+                    _apply_telemetry_logs(conn, migration.path)
                 else:
                     _apply_sql_file(conn, migration.path)
 

@@ -53,13 +53,13 @@ class MigrationTest(unittest.TestCase):
             ).fetchone()
             self.assertEqual(row, (42.5, 42.5))
             versions = [row[0] for row in conn.execute("SELECT version FROM schema_migrations ORDER BY version")]
-            self.assertEqual(versions, ["0001", "0002", "0003"])
+            self.assertEqual(versions, ["0001", "0002", "0003", "0004", "0005"])
             conn.close()
 
     def test_migrations_are_idempotent_on_fresh_database(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             db_path = Path(temp_dir) / "fresh.db"
-            self.assertEqual(migrate_database(db_path), ["0001", "0002", "0003"])
+            self.assertEqual(migrate_database(db_path), ["0001", "0002", "0003", "0004", "0005"])
             self.assertEqual(migrate_database(db_path), [])
 
             conn = sqlite3.connect(db_path)
@@ -70,7 +70,7 @@ class MigrationTest(unittest.TestCase):
                 )
             }
             self.assertTrue(
-                {"events", "vehicle_telemetry_states", "detections", "drains", "schema_migrations"}
+                {"events", "vehicle_telemetry_states", "detections", "drains", "schema_migrations", "events_false_positive_archive", "telemetry_logs"}
                 <= tables
             )
             conn.close()
@@ -100,7 +100,7 @@ class MigrationTest(unittest.TestCase):
             conn.commit()
             conn.close()
 
-            self.assertEqual(migrate_database(db_path), ["0001", "0002", "0003"])
+            self.assertEqual(migrate_database(db_path), ["0001", "0002", "0003", "0004", "0005"])
 
             conn = sqlite3.connect(db_path)
             columns = {row[1] for row in conn.execute("PRAGMA table_info(events)")}
