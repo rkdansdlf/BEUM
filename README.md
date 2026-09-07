@@ -6,10 +6,9 @@ The OpenSCAD enclosure files in the project root are kept separate from the Pyth
 ## Important Model Rule
 
 Do not deploy `yolov8n.pt` as a debris model. It is a COCO model and class `0` means
-`person`. For accurate coverage measurement, train a custom segmentation model and
-copy the resulting `best-seg-5class.pt` into `models/`. The existing
-`best-seg.pt` is a three-class baseline and must not be used with the five-class
-configuration.
+`person`. For accurate coverage measurement, deploy the validated custom 2-class segmentation model
+`models/edge_exports/best-seg-2class_320.onnx` (classes: `drain_area`, `drain_full`).
+
 
 Training is performed on a PC or Colab. The Raspberry Pi runs inference only.
 
@@ -71,16 +70,17 @@ python -m unittest discover tests -v
 
 ### 3. Run Gully Edge Pipeline
 ```bash
-# Run pipeline with custom configuration
-python -m gully_system.main --config config.example.json --model models/best-seg-5class.pt --source video.mp4 --max-frames 100
+# Run pipeline with default 2-class ONNX model
+python -m gully_system.main --config config.example.json --model models/edge_exports/best-seg-2class_320.onnx --source video.mp4 --max-frames 100
 
 # Realtime mode with latest-frame queue
-python -m gully_system.main --config config.example.json --model models/best-seg-5class.pt --source video.mp4 --realtime --max-frames 100
+python -m gully_system.main --config config.example.json --model models/edge_exports/best-seg-2class_320.onnx --source video.mp4 --realtime --max-frames 100
 ```
 
-The example configuration expects a custom five-class segmentation model at `models/best-seg-5class.pt`. A
+The example configuration uses the custom two-class segmentation model at `models/edge_exports/best-seg-2class_320.onnx`. A
 detection-only model can run, but its coverage is explicitly reported as `bbox_estimate`
 and is less accurate than `segmentation_mask`. Continuous output
+
 video is disabled by default because it can fill edge storage; enable it only for short
 debug runs. Events are written to `data/spool/pending` and are deleted only after a
 successful HTTP upload. With no URL configured, the uploader is disabled and events

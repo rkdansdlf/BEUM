@@ -16,7 +16,7 @@ const C = {
   amber: 'F2B544', coral: 'E66964', line: 'DCE4ED', paleBlue: 'E8F1FF',
   paleCyan: 'E5F8F5', paleAmber: 'FFF5D9', paleCoral: 'FFF0EF'
 };
-const FONT = 'Arial Unicode MS';
+const FONT = 'Apple SD Gothic Neo';
 
 const pptx = new pptxgen();
 pptx.defineLayout({ name: 'BEUM_WIDE', width: 13.333, height: 7.5 });
@@ -141,4 +141,3 @@ const doc = new Document({ sections: [{ properties: {}, children: [
   new Paragraph({ text: slide2 })
 ] }] });
 Promise.all([pptx.writeFile({ fileName: PPTX }), Packer.toBuffer(doc).then(buf => fs.writeFileSync(DOCX, buf))]).then(() => console.log(`Created: ${PPTX}\nCreated: ${MD}\nCreated: ${DOCX}`));
-
