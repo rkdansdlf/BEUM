@@ -8,6 +8,9 @@ GIS systems (GeoJSON), real-time SSE streaming, and external webhook notificatio
 from __future__ import annotations
 
 import asyncio
+import base64
+import csv
+import io
 import json
 import logging
 import sqlite3
@@ -20,9 +23,11 @@ from typing import Any, AsyncGenerator, Callable
 import websockets
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Query, Request, status
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, Response
 from pydantic import BaseModel, Field
 from starlette.websockets import WebSocket
+
+from camera_streamer import LiveCameraStreamer
 
 logger = logging.getLogger("drainsight_adapter")
 
@@ -64,7 +69,10 @@ class DrainSightAdapter:
         self._subscribers: list[asyncio.Queue[dict[str, Any]]] = []
         self._active_ws: list[WebSocket] = []
         self._webhooks: dict[str, dict[str, Any]] = {}
+        self.camera_streamer = LiveCameraStreamer()
         self.router = APIRouter(prefix="/api/drainsight", tags=["DrainSight Adapter"])
+        self.camera_router = APIRouter(prefix="/api/camera", tags=["Camera Stream & AI Vision"])
+        self.gps_router = APIRouter(prefix="/api/gps", tags=["GPS Telemetry Tracking"])
         self._setup_routes()
 
     def _get_connection(self):
@@ -420,6 +428,259 @@ class DrainSightAdapter:
             deleted = self._webhooks.pop(webhook_id)
             return {"status": "deleted", "webhook_id": webhook_id}
 
+        # Camera & AI Vision Endpoints
+        @self.router.get("/camera/stream", summary="Real-time MJPEG camera stream with YOLO object detection")
+        @self.camera_router.get("/stream", summary="Real-time MJPEG camera stream with YOLO object detection")
+        def camera_stream_endpoint():
+            return StreamingResponse(
+                self.camera_streamer.get_mjpeg_stream(),
+                media_type="multipart/x-mixed-replace; boundary=frame",
+            )
+
+        @self.router.get("/camera/snapshot", summary="Get latest annotated JPEG frame for Safari/mobile fallback")
+        @self.camera_router.get("/snapshot", summary="Get latest annotated JPEG frame for Safari/mobile fallback")
+        def camera_snapshot_endpoint():
+            if not self.camera_streamer._running:
+                self.camera_streamer.start()
+            with self.camera_streamer._lock:
+                jpeg = self.camera_streamer.latest_jpeg
+            if jpeg is None:
+                raise HTTPException(status_code=503, detail="Frame not ready")
+            return Response(
+                content=jpeg,
+                media_type="image/jpeg",
+                headers={
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0",
+                },
+            )
+
+        @self.router.get("/camera/status", summary="Get live camera detection status and FPS")
+        @self.camera_router.get("/status", summary="Get live camera detection status and FPS")
+        def camera_status_endpoint():
+            return self.camera_streamer.get_status()
+
+        @self.router.get("/camera/pi-status", summary="Proxy Raspberry Pi hardware diagnostic and GPS status")
+        @self.camera_router.get("/pi-status", summary="Proxy Raspberry Pi hardware diagnostic and GPS status")
+        def camera_pi_status_endpoint():
+            import urllib.request
+            try:
+                src = getattr(self.camera_streamer, "video_source", "")
+                pi_ip = "172.30.1.67"
+                if "://" in src:
+                    host_part = src.split("://")[1].split("/")[0].split(":")[0]
+                    if host_part:
+                        pi_ip = host_part
+                url = f"http://{pi_ip}:8080/status.json"
+                req = urllib.request.Request(url)
+                with urllib.request.urlopen(req, timeout=1.2) as resp:
+                    return json.loads(resp.read().decode("utf-8"))
+            except Exception as e:
+                return {"camera_ok": False, "error": str(e), "gps_error": "Connecting to Pi..."}
+
+        @self.router.post("/camera/detect", summary="Single-frame YOLO detection for browser webcam / client uploads")
+        @self.camera_router.post("/detect", summary="Single-frame YOLO detection for browser webcam / client uploads")
+        async def camera_detect_endpoint(request: Request):
+            content_type = request.headers.get("content-type", "")
+            image_bytes = None
+            conf = None
+            if "multipart/form-data" in content_type:
+                form = await request.form()
+                file_field = form.get("file") or form.get("image")
+                if file_field and hasattr(file_field, "read"):
+                    image_bytes = await file_field.read()
+                conf_str = form.get("conf")
+                if conf_str:
+                    try:
+                        conf = float(conf_str)
+                    except ValueError:
+                        pass
+            elif "application/json" in content_type:
+                body = await request.json()
+                b64 = body.get("image_base64") or body.get("image") or ""
+                if "," in b64:
+                    b64 = b64.split(",", 1)[1]
+                if b64:
+                    image_bytes = base64.b64decode(b64)
+                if "conf" in body:
+                    conf = float(body["conf"])
+            else:
+                image_bytes = await request.body()
+
+            if not image_bytes:
+                raise HTTPException(status_code=400, detail="Missing image data")
+
+            return self.camera_streamer.detect_single_image(image_bytes, conf)
+
+        @self.router.post("/camera/config", summary="Configure camera streamer source and confidence")
+        @self.camera_router.post("/config", summary="Configure camera streamer source and confidence")
+        async def camera_config_endpoint(request: Request):
+            body = await request.json()
+            if "source" in body:
+                self.camera_streamer.set_source(body["source"])
+            if "conf" in body:
+                self.camera_streamer.set_confidence(float(body["conf"]))
+            return {"ok": True, "status": self.camera_streamer.get_status()}
+
+        # GPS & Telemetry Tracking Endpoints
+        @self.router.get("/gps/sources", summary="Get all known GPS transmitting sources and active status")
+        @self.gps_router.get("/sources", summary="Get all known GPS transmitting sources and active status")
+        def get_gps_sources():
+            with self._get_connection() as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM vehicle_telemetry_states ORDER BY updated_at DESC")
+                states = cur.fetchall()
+
+                cur.execute("SELECT vehicle_code, COUNT(*) as cnt FROM telemetry_logs GROUP BY vehicle_code")
+                counts = {r["vehicle_code"]: r["cnt"] for r in cur.fetchall()}
+
+            now_dt = datetime.now(timezone.utc)
+            sources = []
+            for row in states:
+                v_code = row["vehicle_code"]
+                updated_at_str = row["updated_at"]
+                is_online = False
+                age_s = 999999.0
+                if updated_at_str:
+                    try:
+                        clean_ts = updated_at_str.replace("Z", "+00:00")
+                        up_dt = datetime.fromisoformat(clean_ts)
+                        age_s = max(0.0, (now_dt - up_dt).total_seconds())
+                        is_online = age_s <= 30.0
+                    except Exception:
+                        pass
+
+                lat = row["lat"] if "lat" in row.keys() else None
+                lng = row["lng"] if "lng" in row.keys() else None
+                speed_mps = row["speed_mps"] if "speed_mps" in row.keys() else 0.0
+                client_ip = row["client_ip"] if "client_ip" in row.keys() else "127.0.0.1"
+
+                sources.append({
+                    "vehicle_code": v_code,
+                    "client_ip": client_ip or "127.0.0.1",
+                    "lat": lat,
+                    "lng": lng,
+                    "speed_mps": speed_mps or 0.0,
+                    "speed_kmh": round((speed_mps or 0.0) * 3.6, 1),
+                    "last_sequence": row["last_sequence"],
+                    "last_timestamp": row["last_timestamp"],
+                    "updated_at": updated_at_str,
+                    "age_s": round(age_s, 1),
+                    "status": "online" if is_online else ("idle" if age_s < 300.0 else "offline"),
+                    "packet_count": counts.get(v_code, 1),
+                })
+            return {"sources": sources, "total": len(sources)}
+
+        @self.router.get("/gps/logs", summary="Query received GPS telemetry logs")
+        @self.gps_router.get("/logs", summary="Query received GPS telemetry logs")
+        def get_gps_logs(
+            vehicle_code: str | None = Query(None, description="Filter by vehicle code"),
+            limit: int = Query(50, ge=1, le=500),
+            offset: int = Query(0, ge=0),
+        ):
+            with self._get_connection() as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                query = "SELECT * FROM telemetry_logs"
+                params: list[Any] = []
+                if vehicle_code:
+                    query += " WHERE vehicle_code = ?"
+                    params.append(vehicle_code)
+                query += " ORDER BY received_at DESC LIMIT ? OFFSET ?"
+                params.extend([limit, offset])
+
+                cur.execute(query, params)
+                rows = cur.fetchall()
+
+                count_q = "SELECT COUNT(*) FROM telemetry_logs"
+                count_params: list[Any] = []
+                if vehicle_code:
+                    count_q += " WHERE vehicle_code = ?"
+                    count_params.append(vehicle_code)
+                cur.execute(count_q, count_params)
+                total = cur.fetchone()[0]
+
+            logs = [
+                {
+                    "id": r["id"],
+                    "vehicle_code": r["vehicle_code"],
+                    "client_ip": r["client_ip"],
+                    "lat": r["lat"],
+                    "lng": r["lng"],
+                    "speed_mps": r["speed_mps"],
+                    "speed_kmh": round((r["speed_mps"] or 0.0) * 3.6, 1),
+                    "sequence": r["sequence"],
+                    "received_at": r["received_at"],
+                    "nearest_drain_id": r["nearest_drain_id"],
+                    "distance_m": round(r["distance_m"], 2) if r["distance_m"] is not None else None,
+                }
+                for r in rows
+            ]
+            return {"total": total, "limit": limit, "offset": offset, "logs": logs}
+
+        @self.router.get("/gps/tracks", summary="GeoJSON of recent GPS trajectories")
+        @self.gps_router.get("/tracks", summary="GeoJSON of recent GPS trajectories")
+        def get_gps_tracks():
+            with self._get_connection() as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT * FROM telemetry_logs WHERE lat IS NOT NULL AND lng IS NOT NULL ORDER BY received_at DESC LIMIT 300"
+                )
+                rows = cur.fetchall()
+
+            by_vehicle: dict[str, list[Any]] = {}
+            for r in reversed(rows):
+                by_vehicle.setdefault(r["vehicle_code"], []).append(r)
+
+            features = []
+            for v_code, pts in by_vehicle.items():
+                coords = [[float(p["lng"]), float(p["lat"])] for p in pts]
+                if len(coords) >= 2:
+                    features.append({
+                        "type": "Feature",
+                        "geometry": {"type": "LineString", "coordinates": coords},
+                        "properties": {"vehicle_code": v_code, "points_count": len(coords)},
+                    })
+                latest = pts[-1]
+                features.append({
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": [float(latest["lng"]), float(latest["lat"])]},
+                    "properties": {
+                        "vehicle_code": v_code,
+                        "speed_kmh": round((latest["speed_mps"] or 0.0) * 3.6, 1),
+                        "client_ip": latest["client_ip"],
+                        "received_at": latest["received_at"],
+                        "sequence": latest["sequence"],
+                    },
+                })
+
+            return {"type": "FeatureCollection", "features": features}
+
+        @self.router.get("/gps/export", summary="Export received GPS telemetry logs as CSV")
+        @self.gps_router.get("/export", summary="Export received GPS telemetry logs as CSV")
+        def export_gps_csv():
+            with self._get_connection() as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM telemetry_logs ORDER BY received_at DESC LIMIT 5000")
+                rows = cur.fetchall()
+
+            output = io.StringIO()
+            writer = csv.writer(output)
+            writer.writerow(["id", "received_at", "vehicle_code", "client_ip", "latitude", "longitude", "speed_kmh", "sequence", "nearest_drain_id", "distance_m"])
+            for r in rows:
+                spd_kmh = round((r["speed_mps"] or 0.0) * 3.6, 2)
+                writer.writerow([r["id"], r["received_at"], r["vehicle_code"], r["client_ip"], r["lat"], r["lng"], spd_kmh, r["sequence"], r["nearest_drain_id"], r["distance_m"]])
+
+            return Response(
+                content=output.getvalue(),
+                media_type="text/csv",
+                headers={"Content-Disposition": "attachment; filename=gps_telemetry_logs.csv"},
+            )
+
     async def broadcast_event(
         self,
         event_id: str,
@@ -532,6 +793,14 @@ class DrainSightAdapter:
             if dead in self._subscribers:
                 self._subscribers.remove(dead)
 
+    async def broadcast_dismissal(self, event_id: str) -> None:
+        """Broadcasts event dismissal to all connected WebSockets and SSE queues."""
+        await self.broadcast_detection({"type": "event_dismissed", "event_id": event_id})
+
+    async def broadcast_dismiss_all(self) -> None:
+        """Broadcasts all events dismissal to all connected WebSockets and SSE queues."""
+        await self.broadcast_detection({"type": "all_events_dismissed"})
+
     async def _dispatch_webhooks(self, event_message: dict[str, Any]) -> None:
         """Dispatches event to configured webhook targets in the background."""
         import urllib.request
@@ -566,478 +835,12 @@ class DrainSightAdapter:
                 logger.warning("Webhook dispatch to %s failed: %s", url, e)
 
 
-def get_dashboard_html() -> str:
+TEMPLATE_PATH = Path(__file__).resolve().parent / "templates" / "dashboard.html"
+
+
+def get_dashboard_html(template_path: Path | str | None = None) -> str:
     """Returns the standalone interactive HTML/JS for the DrainSight Web Control Dashboard."""
-    return """<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DrainSight | 스마트 빗물받이 관제 대시보드</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --border-color: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-blue: #38bdf8;
-      --status-crit: #ef4444;
-      --status-warn: #f59e0b;
-      --status-norm: #10b981;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    header {
-      background-color: var(--bg-card);
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .logo-area { display: flex; align-items: center; gap: 12px; }
-    .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #0284c7, #38bdf8); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
-    .title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; }
-    .subtitle { font-size: 0.75rem; color: var(--text-muted); }
-    .live-status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; color: var(--status-norm); }
-    .pulse-dot { width: 8px; height: 8px; background-color: var(--status-norm); border-radius: 50%; box-shadow: 0 0 8px var(--status-norm); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-    
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      padding: 16px 24px;
-      background: var(--bg-main);
-    }
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 14px 18px;
-      display: flex;
-      flex-direction: column;
-    }
-    .stat-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
-    .stat-value { font-size: 1.7rem; font-weight: 700; }
-    .stat-desc { font-size: 0.72rem; margin-top: 4px; color: var(--text-muted); }
-
-    .main-content {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 16px;
-      padding: 0 24px 20px 24px;
-      overflow: hidden;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background: #020617;
-    }
-    .side-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .panel-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .panel-title { font-size: 0.95rem; font-weight: 600; }
-    .filter-btn-group { display: flex; gap: 4px; }
-    .filter-btn {
-      background: #334155;
-      border: none;
-      color: #cbd5e1;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      cursor: pointer;
-    }
-    .filter-btn.active { background: var(--accent-blue); color: #0f172a; font-weight: 600; }
-
-    .event-list { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
-    .event-card {
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .event-card:hover { border-color: var(--accent-blue); transform: translateY(-1px); }
-    .event-card-header { display: flex; justify-content: space-between; align-items: center; }
-    .badge {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      text-transform: uppercase;
-    }
-    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-normal { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
-
-    .cov-bar-container { width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden; margin-top: 4px; }
-    .cov-bar-fill { height: 100%; border-radius: 3px; }
-
-    /* Modal for Image Preview */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10000;
-      left: 0; top: 0; width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.85);
-      backdrop-filter: blur(4px);
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      max-width: 800px;
-      width: 90%;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .modal-header { padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .modal-body { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-    .modal-body img { max-width: 100%; max-height: 500px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: contain; }
-    .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
-    .close-btn:hover { color: white; }
-
-    /* Custom Leaflet Marker Styling */
-    .gully-marker-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--text-main) !important; border: 1px solid var(--border-color); border-radius: 8px; }
-    .leaflet-popup-tip { background: var(--bg-card) !important; }
-  </style>
-</head>
-<body>
-
-  <header>
-    <div class="logo-area">
-      <div class="logo-icon">DS</div>
-      <div>
-        <div class="title">DrainSight™ 관제 대시보드</div>
-        <div class="subtitle">스마트 빗물받이 차폐 모니터링 & AI 준설 관리 시스템</div>
-      </div>
-    </div>
-    <div style="display:flex; gap: 12px; align-items: center;">
-      <a href="/api/drainsight/geojson" target="_blank" style="color: var(--accent-blue); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px;">GeoJSON 내보내기</a>
-      <div class="live-status" id="liveStatus">
-        <div class="pulse-dot"></div>
-        <span id="liveText">실시간 연결됨</span>
-      </div>
-    </div>
-  </header>
-
-  <section class="stats-bar">
-    <div class="stat-card">
-      <div class="stat-title">총 모니터링 배수구</div>
-      <div class="stat-value" id="statTotal">-</div>
-      <div class="stat-desc" id="statSources">연결 기기: -</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title" style="color:#ef4444;">긴급 준설 필요 (심각)</div>
-      <div class="stat-value" id="statCritical" style="color:#ef4444;">-</div>
-      <div class="stat-desc">차폐율 60% 이상 (3등급)</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title" style="color:#f59e0b;">현장 점검 요망 (주의)</div>
-      <div class="stat-value" id="statWarning" style="color:#f59e0b;">-</div>
-      <div class="stat-desc">차폐율 30%~60% (2등급)</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">평균 차폐율</div>
-      <div class="stat-value" id="statAvgCoverage">- %</div>
-      <div class="stat-desc" id="statMaxCoverage">최고 차폐율: - %</div>
-    </div>
-  </section>
-
-  <section class="main-content">
-    <div id="map"></div>
-    <div class="side-panel">
-      <div class="panel-header">
-        <div class="panel-title">실시간 차폐 감지 피드</div>
-        <div class="filter-btn-group">
-          <button class="filter-btn active" onclick="setFilter('all')">전체</button>
-          <button class="filter-btn" onclick="setFilter('critical')">심각</button>
-          <button class="filter-btn" onclick="setFilter('warning')">주의</button>
-        </div>
-      </div>
-      <div class="event-list" id="eventList">
-        <div style="text-align:center; padding: 20px; color: var(--text-muted);">이벤트 로딩 중...</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Image Preview Modal -->
-  <div class="modal" id="imageModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div style="font-weight: 600;" id="modalTitle">현장 증거 사진</div>
-        <button class="close-btn" onclick="closeModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <img id="modalImg" src="" alt="현장 증거 사진" />
-        <div id="modalMeta" style="font-size: 0.85rem; color: var(--text-muted); text-align: center;"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let map;
-    let markersLayer;
-    let currentFilter = 'all';
-    let cachedFeatures = [];
-
-    // Initialize Map
-    function initMap() {
-      map = L.map('map', { zoomControl: true }).setView([36.838, 127.184], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-      markersLayer = L.layerGroup().addTo(map);
-    }
-
-    function getStatusColor(status, coverage) {
-      if (status === 'critical' || coverage >= 60.0) return '#ef4444';
-      if (status === 'warning' || coverage >= 30.0) return '#f59e0b';
-      return '#10b981';
-    }
-
-    function getBadgeClass(status, coverage) {
-      if (status === 'critical' || coverage >= 60.0) return 'badge-critical';
-      if (status === 'warning' || coverage >= 30.0) return 'badge-warning';
-      return 'badge-normal';
-    }
-
-    async function loadStats() {
-      try {
-        const res = await fetch('/api/drainsight/stats');
-        const data = await res.json();
-        document.getElementById('statTotal').innerText = data.total_events || 0;
-        document.getElementById('statCritical').innerText = data.grade_breakdown.grade_3_critical || 0;
-        document.getElementById('statWarning').innerText = data.grade_breakdown.grade_2_warning || 0;
-        document.getElementById('statAvgCoverage').innerText = `${data.average_coverage_percent}%`;
-        document.getElementById('statMaxCoverage').innerText = `최고 차폐율: ${data.max_coverage_percent}%`;
-        document.getElementById('statSources').innerText = `연결 기기: ${data.active_sources.join(', ') || '없음'}`;
-      } catch (err) {
-        console.error("Failed to load stats:", err);
-      }
-    }
-
-    async function loadGeoJSON() {
-      try {
-        const res = await fetch('/api/drainsight/geojson');
-        const geojson = await res.json();
-        cachedFeatures = geojson.features || [];
-        renderMapAndList();
-      } catch (err) {
-        console.error("Failed to load GeoJSON:", err);
-      }
-    }
-
-    function renderMapAndList() {
-      markersLayer.clearLayers();
-      const listEl = document.getElementById('eventList');
-      listEl.innerHTML = '';
-
-      const filtered = cachedFeatures.filter(f => {
-        const p = f.properties;
-        if (currentFilter === 'critical') return p.grade === 3 || p.status === 'critical';
-        if (currentFilter === 'warning') return p.grade === 2 || p.status === 'warning';
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">표시할 이벤트가 없습니다.</div>';
-        return;
-      }
-
-      const bounds = [];
-
-      filtered.forEach(feature => {
-        const p = feature.properties;
-        const coords = feature.geometry.coordinates; // [lon, lat]
-        const latLng = [coords[1], coords[0]];
-        bounds.push(latLng);
-
-        const color = getStatusColor(p.status, p.coverage_percent);
-        const badgeClass = getBadgeClass(p.status, p.coverage_percent);
-
-        // Marker
-        const marker = L.circleMarker(latLng, {
-          radius: 9,
-          fillColor: color,
-          color: '#ffffff',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.85
-        });
-
-        const popupHtml = `
-          <div style="font-size: 0.85rem; min-width: 200px;">
-            <div style="font-weight: 700; margin-bottom: 4px; display:flex; justify-content:space-between;">
-              <span>${p.source}</span>
-              <span class="badge ${badgeClass}">${p.status}</span>
-            </div>
-            <div>차폐율: <b>${p.coverage_percent}%</b> (${p.grade_label})</div>
-            <div style="color:#94a3b8; font-size:0.75rem; margin: 4px 0;">좌표: ${coords[1].toFixed(5)}, ${coords[0].toFixed(5)}</div>
-            ${p.has_image ? `<button onclick="openModal('${p.image_url}', '${p.id}', ${p.coverage_percent})" style="width:100%; margin-top:8px; padding: 6px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-size:0.75rem;">현장 증거 사진 확인</button>` : ''}
-          </div>
-        `;
-        marker.bindPopup(popupHtml);
-        markersLayer.addLayer(marker);
-
-        // Feed Card
-        const card = document.createElement('div');
-        card.className = 'event-card';
-        card.innerHTML = `
-          <div class="event-card-header">
-            <span style="font-weight:600; font-size:0.85rem;">${p.source}</span>
-            <span class="badge ${badgeClass}">${p.coverage_percent}%</span>
-          </div>
-          <div style="font-size:0.75rem; color:#94a3b8;">${p.grade_label}</div>
-          <div class="cov-bar-container">
-            <div class="cov-bar-fill" style="width: ${Math.min(100, p.coverage_percent)}%; background: ${color};"></div>
-          </div>
-          <div style="font-size:0.7rem; color:#64748b; margin-top:2px;">수신: ${p.received_at ? p.received_at.split('.')[0] : ''}</div>
-        `;
-        card.onclick = () => {
-          map.flyTo(latLng, 18);
-          marker.openPopup();
-        };
-        listEl.appendChild(card);
-      });
-
-      if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
-      }
-    }
-
-    function setFilter(f) {
-      currentFilter = f;
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-      renderMapAndList();
-    }
-
-    function openModal(imgUrl, eventId, coverage) {
-      document.getElementById('modalImg').src = imgUrl;
-      document.getElementById('modalTitle').innerText = `이벤트 현장 사진 [${eventId}]`;
-      document.getElementById('modalMeta').innerText = `실시간 탐지 차폐율: ${coverage}%`;
-      document.getElementById('imageModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('imageModal').style.display = 'none';
-      document.getElementById('modalImg').src = '';
-    }
-
-    // Realtime Connection: Primary WebSocket with fallback to SSE
-    function connectRealtime() {
-      const statusText = document.getElementById('liveText');
-      const liveStatus = document.getElementById('liveStatus');
-      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${wsProtocol}//${location.host}/ws/dashboard`;
-
-      let ws;
-      try {
-        ws = new WebSocket(wsUrl);
-      } catch (err) {
-        console.warn("[WS] Direct constructor failed, falling back to SSE", err);
-        return connectSSEFallback();
-      }
-
-      ws.onopen = () => {
-        statusText.innerText = 'WebSocket 관제 연결됨 (Zero-Polling)';
-        liveStatus.style.borderColor = 'rgba(16, 185, 129, 0.5)';
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.type === 'connected') {
-            console.log("[WS] Handshake ACK:", msg);
-          } else if (msg.type === 'telemetry') {
-            console.log("[WS] Telemetry Update:", msg);
-            loadStats();
-          } else if (msg.type === 'detection' || msg.type === 'blockage_event') {
-            console.log("[WS] Detection/Blockage Event:", msg);
-            loadStats();
-            loadGeoJSON();
-          }
-        } catch (e) {
-          console.error("[WS] Message parsing error:", e);
-        }
-      };
-
-      ws.onclose = () => {
-        console.warn("[WS] WebSocket disconnected. Attempting reconnect / SSE fallback...");
-        statusText.innerText = '재연결 시도 중...';
-        liveStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-        setTimeout(connectSSEFallback, 3000);
-      };
-
-      ws.onerror = (err) => {
-        console.warn("[WS] Error occurred, closing socket:", err);
-        ws.close();
-      };
-    }
-
-    function connectSSEFallback() {
-      const statusText = document.getElementById('liveText');
-      const liveStatus = document.getElementById('liveStatus');
-      const sse = new EventSource('/api/drainsight/stream');
-
-      sse.onopen = () => {
-        statusText.innerText = 'SSE 스트리밍 연결됨';
-        liveStatus.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-      };
-
-      sse.addEventListener('blockage_event', (e) => {
-        loadStats();
-        loadGeoJSON();
-      });
-
-      sse.onerror = () => {
-        statusText.innerText = '연결 대기 중';
-        liveStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
-      };
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initMap();
-      loadStats();
-      loadGeoJSON();
-      connectRealtime();
-    });
-  </script>
-</body>
-</html>
-"""
+    path = Path(template_path) if template_path else TEMPLATE_PATH
+    if path.is_file():
+        return path.read_text(encoding="utf-8")
+    raise FileNotFoundError(f"Dashboard template not found: {path}")

@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DrainSight™ | 스마트 빗물받이 관제 & AI 비전 플랫폼</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-sub: #0f172a;
+      --border-color: #27354f;
+      --border-light: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-hover: #0284c7;
+      --status-crit: #ef4444;
+      --status-warn: #f59e0b;
+      --status-norm: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* Header */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      z-index: 100;
+    }
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, #0284c7, #38bdf8); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 1rem; box-shadow: 0 0 10px rgba(56,189,248,0.3); }
+    .title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* Navigation Tabs */
+    .nav-tabs { display: flex; gap: 6px; margin-left: 20px; background: #0a0f1d; padding: 4px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .nav-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 16px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .nav-tab:hover { color: var(--text-main); background: rgba(56,189,248,0.08); }
+    .nav-tab.active {
+      background: var(--accent-blue);
+      color: #0b1120;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(56,189,248,0.4);
+    }
+
+    .header-right { display: flex; gap: 12px; align-items: center; }
+    .live-status { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; padding: 6px 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; color: var(--status-norm); }
+    .pulse-dot { width: 8px; height: 8px; background-color: var(--status-norm); border-radius: 50%; box-shadow: 0 0 8px var(--status-norm); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+    /* View Panels */
+    .view-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .view-panel.active { display: flex; }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 14px 24px;
+      background: var(--bg-main);
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-title { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; }
+    .stat-desc { font-size: 0.72rem; margin-top: 4px; color: var(--text-muted); }
+
+    /* Main Grid Layout */
+    .main-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      padding: 0 24px 18px 24px;
+      overflow: hidden;
+    }
+    .map-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: #020617;
+      overflow: hidden;
+      position: relative;
+    }
+    .side-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #111a2c;
+    }
+    .panel-title { font-size: 0.92rem; font-weight: 600; }
+
+    /* Buttons & Badges */
+    .ctrl-btn {
+      background: #1e293b;
+      border: 1px solid var(--border-light);
+      color: #cbd5e1;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .ctrl-btn:hover { background: #334155; color: white; }
+    .ctrl-btn.accent { background: #0284c7; border-color: #0284c7; color: white; }
+    .ctrl-btn.accent:hover { background: #0369a1; }
+    .filter-btn-group { display: flex; gap: 4px; }
+    .filter-btn {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: #94a3b8;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .filter-btn.active { background: var(--accent-blue); color: #0b1120; font-weight: 700; border-color: var(--accent-blue); }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-normal { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+    .cov-bar-container { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .cov-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+
+    /* Feed List */
+    .event-list { flex: 1; overflow-y: auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .event-card {
+      background: var(--bg-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .event-card:hover { border-color: var(--accent-blue); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .event-card-header { display: flex; justify-content: space-between; align-items: center; }
+
+    /* Camera View Styles */
+    .camera-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      padding: 14px 24px 18px 24px;
+      overflow: hidden;
+    }
+    .stream-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .stream-toolbar {
+      padding: 10px 16px;
+      background: #111a2c;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .stream-viewport {
+      flex: 1;
+      background: #000;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .stream-viewport img, .stream-viewport canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .stream-footer {
+      padding: 8px 16px;
+      background: #0f172a;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* GPS View Styles */
+    .gps-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 24px 18px 24px;
+      gap: 14px;
+      overflow: hidden;
+    }
+    .gps-top-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      height: 52%;
+      min-height: 280px;
+    }
+    .gps-bottom-panel {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .data-table-container { flex: 1; overflow-y: auto; }
+    .styled-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left; }
+    .styled-table th { background: #111a2c; color: var(--text-muted); padding: 9px 14px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10; font-weight: 600; }
+    .styled-table td { padding: 8px 14px; border-bottom: 1px solid rgba(51,65,85,0.4); color: #cbd5e1; }
+    .styled-table tr:hover td { background: rgba(56,189,248,0.05); }
+
+    .source-card {
+      background: var(--bg-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .source-card.online { border-left: 4px solid var(--status-norm); }
+    .source-card.offline { border-left: 4px solid #64748b; }
+
+    /* Modal for Image Preview */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 800px;
+      width: 90%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header { padding: 14px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .modal-body img { max-width: 100%; max-height: 500px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: contain; }
+    .close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+    .close-btn:hover { color: white; }
+
+    .leaflet-popup-content-wrapper { background: var(--bg-card) !important; color: var(--text-main) !important; border: 1px solid var(--border-color); border-radius: 8px; }
+    .leaflet-popup-tip { background: var(--bg-card) !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">DS</div>
+      <div>
+        <div class="title">DrainSight™ 스마트 관제 플랫폼</div>
+        <div class="subtitle">실시간 빗물받이 차폐 AI 분석 & GPS 텔레메트리 관제</div>
+      </div>
+    </div>
+
+    <!-- 3 View Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab" id="tabGully" onclick="switchView('gully')">
+        <span>🗺️</span> 빗물받이 관제
+      </button>
+      <button class="nav-tab active" id="tabCamera" onclick="switchView('camera')">
+        <span>📹</span> 실시간 AI 카메라 탐지
+      </button>
+      <button class="nav-tab" id="tabGps" onclick="switchView('gps')">
+        <span>🛰️</span> GPS 수신처 조회
+      </button>
+    </nav>
+
+    <div class="header-right">
+      <a href="/api/drainsight/geojson" target="_blank" class="ctrl-btn">GeoJSON</a>
+      <div class="live-status" id="liveStatus">
+        <div class="pulse-dot"></div>
+        <span id="liveText">실시간 연결됨</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================= -->
+  <!-- 1. GULLY MONITORING VIEW (스마트 빗물받이 관제 맵) -->
+  <!-- ============================================================= -->
+  <main class="view-panel" id="viewGully">
+    <div style="background: linear-gradient(90deg, #0284c7, #2563eb); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #38bdf8;">
+      <span style="font-weight: 700; font-size: 0.9rem; color: #ffffff;">📹 실시간 AI 객체 탐지 카메라 화면을 보시려면:</span>
+      <button onclick="switchView('camera')" class="ctrl-btn" style="background: #ffffff; color: #0b1120; font-weight: 800; padding: 6px 16px; border-radius: 6px; cursor: pointer; box-shadow: 0 0 10px rgba(255,255,255,0.4);">👉 실시간 AI 카메라 화면으로 전환</button>
+    </div>
+    <section class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-title">총 모니터링 배수구</div>
+        <div class="stat-value" id="statTotal">-</div>
+        <div class="stat-desc">실시간 통합 관제 중</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title" style="color:#ef4444;">긴급 준설 필요 (심각)</div>
+        <div class="stat-value" id="statCritical" style="color:#ef4444;">-</div>
+        <div class="stat-desc">차폐율 60% 이상 (3등급)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title" style="color:#f59e0b;">현장 점검 요망 (주의)</div>
+        <div class="stat-value" id="statWarning" style="color:#f59e0b;">-</div>
+        <div class="stat-desc">차폐율 30%~60% (2등급)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">평균 차폐율</div>
+        <div class="stat-value" id="statAvgCoverage">- %</div>
+        <div class="stat-desc" id="statMaxCoverage">최고 차폐율: - %</div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="map-container" id="map"></div>
+      <div class="side-panel">
+        <div class="panel-header">
+          <div class="panel-title">실시간 차폐 감지 피드</div>
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="setFilter('all')">전체</button>
+            <button class="filter-btn" onclick="setFilter('critical')">심각</button>
+            <button class="filter-btn" onclick="setFilter('warning')">주의</button>
+          </div>
+        </div>
+        <div class="event-list" id="eventList">
+          <div style="text-align:center; padding: 20px; color: var(--text-muted);">이벤트 로딩 중...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- 2. CAMERA AI OBJECT DETECTION VIEW (실시간 AI 카메라 탐지) -->
+  <!-- ============================================================= -->
+  <main class="view-panel active" id="viewCamera">
+    <div class="camera-layout">
+      <!-- Left: Video Stream Player Card -->
+      <div class="stream-card">
+        <div class="stream-toolbar">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">입력 소스:</span>
+            <select id="camSourceSelect" onchange="onSourceChange()" style="background:#0f172a; color:#f8fafc; border:1px solid var(--border-color); border-radius:6px; padding:6px 10px; font-size:0.8rem; cursor:pointer;">
+              <option value="video_drain">🕳️ 배수구 차폐 탐지 영상 (e2e_test_drain.mp4)</option>
+              <option value="video_road">🎥 도로 주행 영상 스트림 (루프 재생)</option>
+              <option value="pi_stream">🌐 라즈베리파이 카메라 실시간 스트림</option>
+              <option value="webcam">💻 내 웹캠 (브라우저 카메라 직접 탐지)</option>
+              <option value="device_0">🔌 하드웨어 카메라 (0번 장치)</option>
+            </select>
+            <div id="piStreamInputBox" style="display:none; align-items:center; gap:6px;">
+              <input type="text" id="piStreamUrlInput" value="http://172.30.1.67:8080/stream.mjpg" style="background:#0f172a; color:#38bdf8; border:1px solid var(--accent-blue); border-radius:6px; padding:5px 10px; font-size:0.8rem; width:260px;" />
+              <button onclick="applyPiStreamUrl()" class="ctrl-btn accent" style="padding:5px 12px; font-size:0.8rem;">연결</button>
+              <a href="http://172.30.1.67:8080" target="_blank" class="ctrl-btn" style="text-decoration:none; padding:5px 10px; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px; color:#38bdf8;">📡 Pi 진단(GPS) ↗</a>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.8rem; color:var(--text-muted);">신뢰도:</span>
+            <input type="range" id="camConfRange" min="10" max="90" value="20" step="5" oninput="onConfChange(this.value)" style="width:90px; cursor:pointer;">
+            <span id="camConfVal" style="font-size:0.8rem; font-weight:700; width:34px; color:var(--accent-blue);">20%</span>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button id="camPauseBtn" onclick="toggleStreamPause()" class="ctrl-btn">⏸ 일시정지</button>
+            <button onclick="takeSnapshot()" class="ctrl-btn accent">📸 스냅샷 캡처</button>
+          </div>
+        </div>
+
+        <div class="stream-viewport">
+          <img id="cameraStreamImg" src="/api/camera/stream" alt="Live AI Camera Stream" />
+          <video id="webcamVideo" autoplay playsinline muted style="display:none;"></video>
+          <canvas id="webcamCanvas" style="display:none;"></canvas>
+        </div>
+
+        <div class="stream-footer">
+          <div>AI 모델: <b style="color:#f8fafc;">YOLOv8n-Seg (2-Class ONNX)</b> | 해상도: 320×320</div>
+          <div>클래스: <span style="color:#10b981;">drain_area (배수구)</span>, <span style="color:#ef4444;">drain_full (차폐/퇴적)</span></div>
+        </div>
+      </div>
+
+      <!-- Right: AI HUD & Live Detections Panel -->
+      <div class="side-panel">
+        <div class="panel-header">
+          <div class="panel-title">실시간 AI 탐지 HUD</div>
+          <span class="badge badge-normal" id="hudStatusBadge">정상</span>
+        </div>
+
+        <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--border-color);">
+          <!-- Performance Metrics -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background:#0f172a; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+              <div style="font-size:0.75rem; color:var(--text-muted);">실시간 FPS</div>
+              <div style="font-size:1.5rem; font-weight:700; color:var(--accent-blue);" id="hudFps">-</div>
+            </div>
+            <div style="background:#0f172a; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+              <div style="font-size:0.75rem; color:var(--text-muted);">추론 지연 시간</div>
+              <div style="font-size:1.5rem; font-weight:700; color:#cbd5e1;" id="hudLatency">- ms</div>
+            </div>
+          </div>
+
+          <!-- Pi GPS Status Card -->
+          <div id="piGpsCard" style="background:#0f172a; border:1px solid var(--border-color); border-radius:8px; padding:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">🛰️ 라즈베리파이 GPS 상태</span>
+              <a href="http://172.30.1.67:8080" target="_blank" class="ctrl-btn" style="text-decoration:none; font-size:0.7rem; padding:2px 6px;">진단 ↗</a>
+            </div>
+            <div id="piGpsStatus" style="font-size:0.85rem; font-weight:600; color:#38bdf8;">수신 대기 중...</div>
+          </div>
+        </div>
+
+        <div style="padding: 10px 18px; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid var(--border-color); background: #111a2c;">
+          프레임 내 검출 객체 목록
+        </div>
+        <div class="event-list" id="cameraDetectionsList">
+          <div style="text-align:center; padding: 20px; color: var(--text-muted);">검출된 객체가 없습니다.</div>
+        </div>
+
+        <!-- Snapshot Thumbnails -->
+        <div style="padding: 10px 18px; border-top: 1px solid var(--border-color);">
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">📸 최근 캡처된 스냅샷</div>
+          <div id="snapshotThumbnails" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;">
+            <span style="font-size:0.75rem; color:#64748b;">캡처 내역 없음</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- 3. GPS TELEMETRY & RECEPTION VIEW (GPS 수신처 및 텔레메트리 조회) -->
+  <!-- ============================================================= -->
+  <main class="view-panel" id="viewGps">
+    <!-- GPS KPI Summary -->
+    <section class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-title">활성 송신 단말</div>
+        <div class="stat-value" id="gpsActiveCount" style="color:var(--status-norm);">-</div>
+        <div class="stat-desc">실시간 위치 보고 기기</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">최근 수신처 네트워크 IP</div>
+        <div class="stat-value" id="gpsLatestIp" style="font-size:1.35rem; color:var(--accent-blue);">-</div>
+        <div class="stat-desc" id="gpsLatestTime">수신 채널: REST / WebSocket</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">총 수신 GPS 패킷</div>
+        <div class="stat-value" id="gpsTotalPackets">-</div>
+        <div class="stat-desc">패킷 유실: 0건 (정상 시퀀스)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">최근 수신 좌표 & 최근접 배수구</div>
+        <div class="stat-value" id="gpsLatestCoords" style="font-size:1.15rem;">-</div>
+        <div class="stat-desc" id="gpsNearestDrainDesc">최근접 배수구 거리: -</div>
+      </div>
+    </section>
+
+    <div class="gps-layout">
+      <!-- Top Half: GPS Map + Active Sources List -->
+      <div class="gps-top-grid">
+        <div class="map-container" style="display:flex; flex-direction:column;">
+          <div style="position:absolute; top:12px; right:12px; z-index:1000; display:flex; gap:6px;">
+            <button onclick="fitGpsBounds()" class="ctrl-btn">📍 단말 위치 맞춤</button>
+            <button onclick="clearGpsTrail()" class="ctrl-btn">🔄 궤적 지우기</button>
+          </div>
+          <div id="gpsMap" style="width:100%; height:100%;"></div>
+        </div>
+
+        <div class="side-panel">
+          <div class="panel-header">
+            <div class="panel-title">수신 중인 GPS 송신 기기</div>
+            <button onclick="loadGpsSources()" class="ctrl-btn">새로고침</button>
+          </div>
+          <div class="event-list" id="gpsSourcesList">
+            <div style="text-align:center; padding: 20px; color: var(--text-muted);">송신 기기 조회 중...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Half: Detailed GPS Logs Table -->
+      <div class="gps-bottom-panel">
+        <div class="panel-header">
+          <div class="panel-title">GPS 수신 이력 상세 로그 (Real-time Telemetry Ingress Records)</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="gpsFilterSelect" onchange="loadGpsLogs()" style="background:#0f172a; color:#f8fafc; border:1px solid var(--border-color); border-radius:6px; padding:4px 10px; font-size:0.75rem;">
+              <option value="">모든 기기</option>
+            </select>
+            <a href="/api/gps/export" target="_blank" class="ctrl-btn accent">📥 CSV 내보내기</a>
+          </div>
+        </div>
+        <div class="data-table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>수신 시각 (서버)</th>
+                <th>기기 식별자 (ID)</th>
+                <th>수신처 IP (Origin)</th>
+                <th>위도 (Latitude)</th>
+                <th>경도 (Longitude)</th>
+                <th>속도</th>
+                <th>시퀀스 #</th>
+                <th>최근접 배수구 (거리)</th>
+                <th>수신 상태</th>
+              </tr>
+            </thead>
+            <tbody id="gpsLogTableBody">
+              <tr><td colspan="9" style="text-align:center; padding:20px; color:#64748b;">수신 로그 로딩 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Image Preview Modal -->
+  <div class="modal" id="imageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="font-weight: 600;" id="modalTitle">현장 증거 사진</div>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modalImg" src="" alt="현장 증거 사진" />
+        <div id="modalMeta" style="font-size: 0.85rem; color: var(--text-muted); text-align: center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let map, markersLayer;
+    let gpsMap, gpsMarkersLayer, gpsTrailLayer;
+    let currentFilter = 'all';
+    let cachedFeatures = [];
+    let activeView = 'camera';
+    let cameraStatusTimer = null;
+    let isStreamPaused = false;
+    let webcamStream = null;
+    let webcamTimer = null;
+    let gpsBreadcrumbs = [];
+
+    // Switch Views (Gully Map vs Camera AI vs GPS Telemetry)
+    function switchView(viewName) {
+      activeView = viewName;
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+
+      if (viewName === 'gully') {
+        document.getElementById('tabGully').classList.add('active');
+        document.getElementById('viewGully').classList.add('active');
+        setTimeout(() => { if (map) map.invalidateSize(); }, 150);
+      } else if (viewName === 'camera') {
+        document.getElementById('tabCamera').classList.add('active');
+        document.getElementById('viewCamera').classList.add('active');
+        startCameraMonitoring();
+      } else if (viewName === 'gps') {
+        document.getElementById('tabGps').classList.add('active');
+        document.getElementById('viewGps').classList.add('active');
+        if (!gpsMap) { initGpsMap(); }
+        setTimeout(() => { if (gpsMap) gpsMap.invalidateSize(); }, 150);
+        loadGpsSources();
+        loadGpsLogs();
+        loadGpsTracks();
+      }
+    }
+
+    // ==========================================
+    // 1. GULLY MONITORING SCRIPTS
+    // ==========================================
+    function initMap() {
+      map = L.map('map', { zoomControl: true }).setView([36.838, 127.184], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function getStatusColor(status, coverage) {
+      if (status === 'critical' || coverage >= 60.0) return '#ef4444';
+      if (status === 'warning' || coverage >= 30.0) return '#f59e0b';
+      return '#10b981';
+    }
+
+    function getBadgeClass(status, coverage) {
+      if (status === 'critical' || coverage >= 60.0) return 'badge-critical';
+      if (status === 'warning' || coverage >= 30.0) return 'badge-warning';
+      return 'badge-normal';
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/drainsight/stats');
+        const data = await res.json();
+        document.getElementById('statTotal').innerText = data.total_events || 0;
+        document.getElementById('statCritical').innerText = (data.grade_breakdown && data.grade_breakdown.grade_3_critical) || 0;
+        document.getElementById('statWarning').innerText = (data.grade_breakdown && data.grade_breakdown.grade_2_warning) || 0;
+        document.getElementById('statAvgCoverage').innerText = `${data.average_coverage_percent || 0}%`;
+        document.getElementById('statMaxCoverage').innerText = `최고 차폐율: ${data.max_coverage_percent || 0}%`;
+      } catch (err) {
+        console.error("Failed to load stats:", err);
+      }
+    }
+
+    async function loadGeoJSON() {
+      try {
+        const res = await fetch('/api/drainsight/geojson');
+        const geojson = await res.json();
+        cachedFeatures = geojson.features || [];
+        renderMapAndList();
+      } catch (err) {
+        console.error("Failed to load GeoJSON:", err);
+      }
+    }
+
+    function renderMapAndList() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+      const listEl = document.getElementById('eventList');
+      listEl.innerHTML = '';
+
+      const filtered = cachedFeatures.filter(f => {
+        const p = f.properties;
+        if (currentFilter === 'critical') return p.grade === 3 || p.status === 'critical';
+        if (currentFilter === 'warning') return p.grade === 2 || p.status === 'warning';
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">표시할 이벤트가 없습니다.</div>';
+        return;
+      }
+
+      const bounds = [];
+      filtered.forEach(feature => {
+        const p = feature.properties;
+        const coords = feature.geometry.coordinates; // [lon, lat]
+        const latLng = [coords[1], coords[0]];
+        bounds.push(latLng);
+
+        const color = getStatusColor(p.status, p.coverage_percent);
+        const badgeClass = getBadgeClass(p.status, p.coverage_percent);
+
+        const marker = L.circleMarker(latLng, {
+          radius: 9,
+          fillColor: color,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.85
+        });
+
+        const popupHtml = `
+          <div style="font-size: 0.85rem; min-width: 200px;">
+            <div style="font-weight: 700; margin-bottom: 4px; display:flex; justify-content:space-between;">
+              <span>${p.source}</span>
+              <span class="badge ${badgeClass}">${p.status}</span>
+            </div>
+            <div>차폐율: <b>${p.coverage_percent}%</b> (${p.grade_label})</div>
+            <div style="color:#94a3b8; font-size:0.75rem; margin: 4px 0;">좌표: ${coords[1].toFixed(5)}, ${coords[0].toFixed(5)}</div>
+            ${p.has_image ? `<button onclick="openModal('${p.image_url}', '${p.id}', ${p.coverage_percent})" style="width:100%; margin-top:8px; padding: 6px; background:#0284c7; color:white; border:none; border-radius:6px; cursor:pointer; font-size:0.75rem;">현장 증거 사진 확인</button>` : ''}
+          </div>
+        `;
+        marker.bindPopup(popupHtml);
+        markersLayer.addLayer(marker);
+
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.innerHTML = `
+          <div class="event-card-header">
+            <span style="font-weight:600; font-size:0.85rem;">${p.source}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="badge ${badgeClass}">${p.coverage_percent}%</span>
+              <button onclick="dismissEvent('${p.id}', event)" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer; padding:0 2px;" title="오탐 처리 및 피드 내리기">✕</button>
+            </div>
+          </div>
+          <div style="font-size:0.75rem; color:#94a3b8;">${p.grade_label}</div>
+          <div class="cov-bar-container">
+            <div class="cov-bar-fill" style="width: ${Math.min(100, p.coverage_percent)}%; background: ${color};"></div>
+          </div>
+          <div style="font-size:0.7rem; color:#64748b; margin-top:2px;">수신: ${p.received_at ? p.received_at.split('.')[0] : ''}</div>
+        `;
+        card.onclick = () => {
+          map.flyTo(latLng, 18);
+          marker.openPopup();
+        };
+        listEl.appendChild(card);
+      });
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 17 });
+      }
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn-group .filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderMapAndList();
+    }
+
+    function openModal(imgUrl, eventId, coverage) {
+      document.getElementById('modalImg').src = imgUrl;
+      document.getElementById('modalTitle').innerText = `이벤트 현장 사진 [${eventId}]`;
+      document.getElementById('modalMeta').innerText = `실시간 탐지 차폐율: ${coverage}%`;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+      document.getElementById('modalImg').src = '';
+    }
+
+    async function dismissEvent(eventId, ev) {
+      if (ev) ev.stopPropagation();
+      if (!confirm(`[${eventId}] 감지 피드를 오탐으로 처리하고 내리시겠습니까?`)) return;
+      try {
+        const res = await fetch(`/api/events/${encodeURIComponent(eventId)}/dismiss`, { method: 'POST' });
+        if (res.ok) {
+          loadStats();
+          loadGeoJSON();
+        } else {
+          alert('오탐 처리 실패');
+        }
+      } catch (err) {
+        console.error('Dismiss error:', err);
+        alert('오탐 처리 요청 중 오류가 발생했습니다.');
+      }
+    }
+
+    async function dismissAllEvents() {
+      if (!confirm('대시보드에 올라온 모든 감지 피드를 오탐으로 처리하고 내리시겠습니까?')) return;
+      try {
+        const res = await fetch('/api/events/dismiss-all', { method: 'POST' });
+        if (res.ok) {
+          loadStats();
+          loadGeoJSON();
+        } else {
+          alert('전체 피드 내리기 실패');
+        }
+      } catch (err) {
+        console.error('Dismiss all error:', err);
+        alert('전체 피드 내리기 요청 중 오류가 발생했습니다.');
+      }
+    }
+
+    // ==========================================
+    // 2. CAMERA AI OBJECT DETECTION SCRIPTS
+    // ==========================================
+    let cameraFallbackActive = false;
+
+    function startCameraMonitoring() {
+      if (cameraStatusTimer) clearInterval(cameraStatusTimer);
+      fetchCameraStatus();
+      cameraStatusTimer = setInterval(fetchCameraStatus, 800);
+
+      const imgEl = document.getElementById('cameraStreamImg');
+      if (imgEl && !cameraFallbackActive) {
+        imgEl.onerror = () => {
+          if (!isStreamPaused && !cameraFallbackActive) {
+            console.warn("MJPEG stream error, switching to snapshot fallback...");
+            startCameraSnapshotFallback();
+          }
+        };
+      }
+    }
+
+    function startCameraSnapshotFallback() {
+      if (cameraFallbackActive) return;
+      cameraFallbackActive = true;
+      const imgEl = document.getElementById('cameraStreamImg');
+      let isFetching = false;
+
+      function pollNext() {
+        if (activeView !== 'camera' || isStreamPaused) {
+          return;
+        }
+        if (isFetching) return;
+        isFetching = true;
+
+        const nextImg = new Image();
+        nextImg.onload = () => {
+          isFetching = false;
+          if (imgEl && activeView === 'camera' && !isStreamPaused) {
+            imgEl.src = nextImg.src;
+          }
+          if (!isStreamPaused) {
+            setTimeout(pollNext, 80);
+          }
+        };
+        nextImg.onerror = () => {
+          isFetching = false;
+          if (!isStreamPaused) setTimeout(pollNext, 300);
+        };
+        nextImg.src = '/api/camera/snapshot?t=' + Date.now();
+      }
+      pollNext();
+    }
+
+    async function fetchCameraStatus() {
+      if (activeView !== 'camera') return;
+      try {
+        const res = await fetch('/api/camera/status');
+        const data = await res.json();
+
+        document.getElementById('hudFps').innerText = data.fps ? data.fps.toFixed(1) : '0.0';
+        document.getElementById('hudLatency').innerText = data.latency_ms ? `${data.latency_ms.toFixed(0)} ms` : '- ms';
+
+        const badgeEl = document.getElementById('hudStatusBadge');
+        if (badgeEl) {
+          if (data.status === 'critical') {
+            badgeEl.className = 'badge badge-critical';
+            badgeEl.innerText = '이상 감지 (심각)';
+          } else if (data.status === 'warning') {
+            badgeEl.className = 'badge badge-warning';
+            badgeEl.innerText = '주의 (점검)';
+          } else {
+            badgeEl.className = 'badge badge-normal';
+            badgeEl.innerText = '정상 (원활)';
+          }
+        }
+
+        renderDetectionsList(data.detections || []);
+
+        // Fetch Pi GPS / Hardware status
+        fetch('/api/camera/pi-status')
+          .then(res => res.json())
+          .then(piData => {
+            const gpsBox = document.getElementById('piGpsStatus');
+            if (gpsBox) {
+              if (piData.gps_fix && piData.gps_fix.latitude) {
+                gpsBox.innerText = `위도: ${piData.gps_fix.latitude.toFixed(5)}, 경도: ${piData.gps_fix.longitude.toFixed(5)} (${(piData.gps_fix.speed_mps * 3.6).toFixed(1)} km/h)`;
+                gpsBox.style.color = '#10b981';
+              } else if (piData.gps_sentences_received > 0) {
+                gpsBox.innerText = `NMEA 수신 중 (${piData.gps_sentences_received} 패킷) - 위성 신호 탐색 중`;
+                gpsBox.style.color = '#38bdf8';
+              } else if (piData.gps_error) {
+                gpsBox.innerText = `GPS: ${piData.gps_error}`;
+                gpsBox.style.color = '#ef4444';
+              } else {
+                gpsBox.innerText = 'GPS 수신 대기 중';
+                gpsBox.style.color = '#f59e0b';
+              }
+            }
+          })
+          .catch(() => {});
+      } catch (err) {
+        console.warn("Failed to fetch camera status:", err);
+      }
+    }
+
+    function renderDetectionsList(detections) {
+      const listEl = document.getElementById('cameraDetectionsList');
+      if (!detections || detections.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center; padding: 18px; color: #64748b; font-size:0.8rem;">현재 프레임에 탐지된 객체가 없습니다.</div>';
+        return;
+      }
+      listEl.innerHTML = '';
+      detections.forEach((d, idx) => {
+        const isFull = d.is_blockage;
+        const color = isFull ? '#ef4444' : '#10b981';
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.style.borderLeft = `3px solid ${color}`;
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:700; color:${color}; font-size:0.82rem;">#${idx+1} ${d.class_name}</span>
+            <span class="badge ${isFull ? 'badge-critical' : 'badge-normal'}">${(d.confidence*100).toFixed(1)}%</span>
+          </div>
+          <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
+            BBox: [${d.bbox.map(v=>Math.round(v)).join(', ')}]
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    async function onSourceChange() {
+      const val = document.getElementById('camSourceSelect').value;
+      const imgEl = document.getElementById('cameraStreamImg');
+      const vidEl = document.getElementById('webcamVideo');
+      const cvsEl = document.getElementById('webcamCanvas');
+      const piBox = document.getElementById('piStreamInputBox');
+
+      if (val === 'pi_stream') {
+        if (piBox) piBox.style.display = 'flex';
+        applyPiStreamUrl();
+        return;
+      } else {
+        if (piBox) piBox.style.display = 'none';
+      }
+
+      if (val === 'webcam') {
+        imgEl.style.display = 'none';
+        vidEl.style.display = 'none';
+        cvsEl.style.display = 'block';
+        startWebcamMode();
+      } else {
+        stopWebcamMode();
+        imgEl.style.display = 'block';
+        cvsEl.style.display = 'none';
+        let srcPath = '0';
+        if (val === 'video_drain') {
+          srcPath = 'data/e2e_test_drain.mp4';
+        } else if (val === 'video_road') {
+          srcPath = 'data/2026-09-04_04-31-48/V20260904_131914000_79E42EB0-91A0-4F27-A3F0-BF6673616688.MOV';
+        }
+        await fetch('/api/camera/config', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ source: srcPath })
+        });
+        imgEl.src = '/api/camera/stream?t=' + Date.now();
+      }
+    }
+
+    async function applyPiStreamUrl() {
+      const inputEl = document.getElementById('piStreamUrlInput');
+      let url = inputEl ? inputEl.value.trim() : '';
+      if (!url) {
+        url = 'http://172.30.1.67:8080/stream.mjpg';
+        if (inputEl) inputEl.value = url;
+      }
+      if ((url.startsWith('http://') || url.startsWith('https://')) && url.includes(':8080') && !url.endsWith('/stream.mjpg')) {
+        url = url.replace(/\/+$/, '') + '/stream.mjpg';
+        if (inputEl) inputEl.value = url;
+      }
+      stopWebcamMode();
+      const imgEl = document.getElementById('cameraStreamImg');
+      const cvsEl = document.getElementById('webcamCanvas');
+      imgEl.style.display = 'block';
+      cvsEl.style.display = 'none';
+
+      await fetch('/api/camera/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ source: url })
+      });
+      imgEl.src = '/api/camera/stream?t=' + Date.now();
+    }
+
+    async function onConfChange(val) {
+      document.getElementById('camConfVal').innerText = `${val}%`;
+      await fetch('/api/camera/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ conf: parseFloat(val) / 100.0 })
+      });
+    }
+
+    function toggleStreamPause() {
+      const imgEl = document.getElementById('cameraStreamImg');
+      const btn = document.getElementById('camPauseBtn');
+      const isWebcam = document.getElementById('camSourceSelect').value === 'webcam';
+
+      if (isWebcam) {
+        const vid = document.getElementById('webcamVideo');
+        if (isStreamPaused) {
+          if (vid) vid.play();
+          isStreamPaused = false;
+          btn.innerText = '⏸ 일시정지';
+          btn.classList.remove('accent');
+        } else {
+          if (vid) vid.pause();
+          isStreamPaused = true;
+          btn.innerText = '▶ 재생';
+          btn.classList.add('accent');
+        }
+        return;
+      }
+
+      if (!isStreamPaused) {
+        // PAUSE: Stop updates and hold current frame
+        isStreamPaused = true;
+        btn.innerText = '▶ 재생';
+        btn.classList.add('accent');
+
+        // Freeze frame stably using a snapshot blob
+        if (!cameraFallbackActive) {
+          fetch('/api/camera/snapshot?t=' + Date.now())
+            .then(res => res.blob())
+            .then(blob => {
+              if (isStreamPaused && imgEl) {
+                imgEl.src = URL.createObjectURL(blob);
+              }
+            }).catch(() => {});
+        }
+      } else {
+        // PLAY / RESUME
+        isStreamPaused = false;
+        btn.innerText = '⏸ 일시정지';
+        btn.classList.remove('accent');
+
+        if (cameraFallbackActive) {
+          startCameraSnapshotFallback();
+        } else if (imgEl) {
+          imgEl.src = '/api/camera/stream?t=' + Date.now();
+        }
+      }
+    }
+
+    function takeSnapshot() {
+      const imgEl = document.getElementById('cameraStreamImg');
+      const cvsEl = document.getElementById('webcamCanvas');
+      const isWebcam = document.getElementById('camSourceSelect').value === 'webcam';
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (isWebcam && cvsEl) {
+        canvas.width = cvsEl.width;
+        canvas.height = cvsEl.height;
+        ctx.drawImage(cvsEl, 0, 0);
+      } else if (imgEl) {
+        canvas.width = imgEl.naturalWidth || 640;
+        canvas.height = imgEl.naturalHeight || 480;
+        ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+      }
+
+      const dataUrl = canvas.toDataURL('image/jpeg');
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `snapshot_${ts}.jpg`;
+      a.click();
+
+      // Add thumbnail
+      const thumbStrip = document.getElementById('snapshotThumbnails');
+      if (thumbStrip.querySelector('span')) thumbStrip.innerHTML = '';
+      const thumb = document.createElement('img');
+      thumb.src = dataUrl;
+      thumb.style.width = '64px';
+      thumb.style.height = '48px';
+      thumb.style.objectFit = 'cover';
+      thumb.style.borderRadius = '4px';
+      thumb.style.border = '1px solid var(--accent-blue)';
+      thumb.style.cursor = 'pointer';
+      thumb.title = `클릭하여 다운로드 (${ts})`;
+      thumb.onclick = () => { a.click(); };
+      thumbStrip.prepend(thumb);
+    }
+
+    async function startWebcamMode() {
+      try {
+        const vid = document.getElementById('webcamVideo');
+        const cvs = document.getElementById('webcamCanvas');
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+        vid.srcObject = webcamStream;
+        await vid.play();
+
+        const ctx = cvs.getContext('2d');
+        cvs.width = 640;
+        cvs.height = 480;
+
+        webcamTimer = setInterval(async () => {
+          if (!webcamStream) return;
+          ctx.drawImage(vid, 0, 0, cvs.width, cvs.height);
+          const b64 = cvs.toDataURL('image/jpeg', 0.7);
+          const conf = parseFloat(document.getElementById('camConfRange').value) / 100.0;
+
+          try {
+            const res = await fetch('/api/camera/detect', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ image_base64: b64, conf: conf })
+            });
+            const data = await res.json();
+            if (data.annotated_image_base64) {
+              const resImg = new Image();
+              resImg.onload = () => { ctx.drawImage(resImg, 0, 0, cvs.width, cvs.height); };
+              resImg.src = data.annotated_image_base64;
+            }
+            renderDetectionsList(data.detections || []);
+            document.getElementById('hudLatency').innerText = `${data.latency_ms} ms`;
+            document.getElementById('hudOccPct').innerText = `${data.occlusion_pct}%`;
+          } catch (e) {
+            console.warn("Webcam detection error:", e);
+          }
+        }, 300);
+      } catch (err) {
+        alert("웹캠 접근 권한이 필요합니다: " + err.message);
+        document.getElementById('camSourceSelect').value = 'video_road';
+        onSourceChange();
+      }
+    }
+
+    function stopWebcamMode() {
+      if (webcamTimer) { clearInterval(webcamTimer); webcamTimer = null; }
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(t => t.stop());
+        webcamStream = null;
+      }
+    }
+
+    // ==========================================
+    // 3. GPS TELEMETRY & RECEPTION VIEW
+    // ==========================================
+    function initGpsMap() {
+      gpsMap = L.map('gpsMap', { zoomControl: true }).setView([36.8303, 127.1790], 17);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19
+      }).addTo(gpsMap);
+      gpsMarkersLayer = L.layerGroup().addTo(gpsMap);
+      gpsTrailLayer = L.layerGroup().addTo(gpsMap);
+    }
+
+    async function loadGpsSources() {
+      try {
+        const res = await fetch('/api/gps/sources');
+        const data = await res.json();
+        const sources = data.sources || [];
+
+        const activeSources = sources.filter(s => s.status === 'online');
+        document.getElementById('gpsActiveCount').innerText = `${activeSources.length}대 온라인`;
+
+        if (sources.length > 0) {
+          const s0 = sources[0];
+          document.getElementById('gpsLatestIp').innerText = s0.client_ip || '127.0.0.1';
+          document.getElementById('gpsLatestTime').innerText = `최근 수신: ${s0.updated_at ? s0.updated_at.split('T')[1].slice(0,8) : '-'} (${s0.age_s}초 전)`;
+          if (s0.lat && s0.lng) {
+            document.getElementById('gpsLatestCoords').innerText = `${s0.lat.toFixed(5)}, ${s0.lng.toFixed(5)}`;
+          }
+        }
+
+        const listEl = document.getElementById('gpsSourcesList');
+        const filterSelect = document.getElementById('gpsFilterSelect');
+        listEl.innerHTML = '';
+        filterSelect.innerHTML = '<option value="">모든 기기</option>';
+
+        if (sources.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">수신된 GPS 송신 기기가 없습니다.</div>';
+          return;
+        }
+
+        sources.forEach(s => {
+          // Add option
+          const opt = document.createElement('option');
+          opt.value = s.vehicle_code;
+          opt.innerText = `${s.vehicle_code} (${s.status})`;
+          filterSelect.appendChild(opt);
+
+          const isOnline = s.status === 'online';
+          const card = document.createElement('div');
+          card.className = `source-card ${isOnline ? 'online' : 'offline'}`;
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:700; font-size:0.85rem; color:var(--text-main);">${s.vehicle_code}</span>
+              <span class="badge ${isOnline ? 'badge-normal' : 'badge-warning'}">${isOnline ? '🟢 온라인' : '⚪ 대기/오프라인'}</span>
+            </div>
+            <div style="font-size:0.75rem; color:#94a3b8; display:flex; justify-content:space-between;">
+              <span>수신처 IP: <b style="color:#cbd5e1;">${s.client_ip}</b></span>
+              <span>속도: <b>${s.speed_kmh} km/h</b></span>
+            </div>
+            <div style="font-size:0.72rem; color:#64748b;">
+              좌표: ${s.lat ? `${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}` : '수신 대기'} | 시퀀스: #${s.last_sequence}
+            </div>
+          `;
+          card.onclick = () => {
+            if (s.lat && s.lng && gpsMap) {
+              gpsMap.flyTo([s.lat, s.lng], 18);
+            }
+          };
+          listEl.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Failed to load GPS sources:", err);
+      }
+    }
+
+    async function loadGpsLogs() {
+      const vFilter = document.getElementById('gpsFilterSelect').value;
+      const url = vFilter ? `/api/gps/logs?vehicle_code=${encodeURIComponent(vFilter)}` : '/api/gps/logs';
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        document.getElementById('gpsTotalPackets').innerText = `${data.total}건`;
+
+        const tbody = document.getElementById('gpsLogTableBody');
+        tbody.innerHTML = '';
+
+        if (!data.logs || data.logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:#64748b;">기록된 수신 패킷이 없습니다.</td></tr>';
+          return;
+        }
+
+        data.logs.forEach(l => {
+          const tr = document.createElement('tr');
+          const timeStr = l.received_at ? l.received_at.split('T')[1].split('.')[0] : '-';
+          tr.innerHTML = `
+            <td><b>${timeStr}</b></td>
+            <td><span style="color:var(--accent-blue); font-weight:600;">${l.vehicle_code}</span></td>
+            <td><code>${l.client_ip || '127.0.0.1'}</code></td>
+            <td>${l.lat ? l.lat.toFixed(5) : '-'}</td>
+            <td>${l.lng ? l.lng.toFixed(5) : '-'}</td>
+            <td>${l.speed_kmh} km/h</td>
+            <td>#${l.sequence}</td>
+            <td>${l.nearest_drain_id ? `#${l.nearest_drain_id} (${l.distance_m}m)` : '-'}</td>
+            <td><span class="badge badge-normal">정상 수신</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error("Failed to load GPS logs:", err);
+      }
+    }
+
+    async function loadGpsTracks() {
+      if (!gpsMap) return;
+      try {
+        const res = await fetch('/api/gps/tracks');
+        const geojson = await res.json();
+        gpsMarkersLayer.clearLayers();
+        gpsTrailLayer.clearLayers();
+
+        const bounds = [];
+        (geojson.features || []).forEach(f => {
+          if (f.geometry.type === 'LineString') {
+            const latLngs = f.geometry.coordinates.map(c => [c[1], c[0]]);
+            latLngs.forEach(ll => bounds.push(ll));
+            L.polyline(latLngs, { color: '#38bdf8', weight: 4, opacity: 0.8 }).addTo(gpsTrailLayer);
+          } else if (f.geometry.type === 'Point') {
+            const coords = [f.geometry.coordinates[1], f.geometry.coordinates[0]];
+            bounds.push(coords);
+            const p = f.properties;
+            const marker = L.circleMarker(coords, {
+              radius: 9,
+              fillColor: '#0284c7',
+              color: '#ffffff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.95
+            });
+            marker.bindPopup(`
+              <div style="font-size:0.8rem;">
+                <b>🚗 ${p.vehicle_code}</b><br/>
+                수신처 IP: <code>${p.client_ip}</code><br/>
+                속도: <b>${p.speed_kmh} km/h</b><br/>
+                시퀀스: #${p.sequence}<br/>
+                좌표: ${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}
+              </div>
+            `);
+            gpsMarkersLayer.addLayer(marker);
+          }
+        });
+
+        if (bounds.length > 0) {
+          gpsMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 18 });
+        }
+      } catch (err) {
+        console.error("Failed to load GPS tracks:", err);
+      }
+    }
+
+    function fitGpsBounds() {
+      loadGpsTracks();
+    }
+
+    function clearGpsTrail() {
+      if (gpsTrailLayer) gpsTrailLayer.clearLayers();
+    }
+
+    // ==========================================
+    // 4. WEBSOCKET REAL-TIME SYNC
+    // ==========================================
+    function connectRealtime() {
+      const statusText = document.getElementById('liveText');
+      const liveStatus = document.getElementById('liveStatus');
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProtocol}//${location.host}/ws/dashboard`;
+
+      let ws;
+      try {
+        ws = new WebSocket(wsUrl);
+      } catch (err) {
+        console.warn("[WS] Direct constructor failed, falling back to SSE", err);
+        return connectSSEFallback();
+      }
+
+      ws.onopen = () => {
+        statusText.innerText = '관제 센터 실시간 연결됨';
+        liveStatus.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'telemetry') {
+            loadGpsSources();
+            if (activeView === 'gps') {
+              loadGpsLogs();
+              loadGpsTracks();
+            }
+          } else if (msg.type === 'detection' || msg.type === 'blockage_event' || msg.type === 'event_dismissed' || msg.type === 'all_events_dismissed') {
+            loadStats();
+            loadGeoJSON();
+          }
+        } catch (e) {
+          console.error("[WS] Message parse error:", e);
+        }
+      };
+
+      ws.onclose = () => {
+        statusText.innerText = '재연결 시도 중...';
+        liveStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        setTimeout(connectSSEFallback, 3000);
+      };
+
+      ws.onerror = (err) => {
+        ws.close();
+      };
+    }
+
+    function connectSSEFallback() {
+      const statusText = document.getElementById('liveText');
+      const liveStatus = document.getElementById('liveStatus');
+      const sse = new EventSource('/api/drainsight/stream');
+
+      sse.onopen = () => {
+        statusText.innerText = 'SSE 스트리밍 연결됨';
+        liveStatus.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      };
+
+      sse.addEventListener('blockage_event', (e) => {
+        loadStats();
+        loadGeoJSON();
+      });
+
+      sse.onerror = () => {
+        statusText.innerText = '연결 대기 중';
+        liveStatus.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      startCameraMonitoring();
+      try { initMap(); } catch(e) { console.warn("Map init deferred:", e); }
+      try { loadStats(); } catch(e) {}
+      try { loadGeoJSON(); } catch(e) {}
+      try { connectRealtime(); } catch(e) {}
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'gully' || urlParams.get('tab') === 'gully') {
+        switchView('gully');
+      } else if (hash === 'gps' || urlParams.get('tab') === 'gps') {
+        switchView('gps');
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      const h = window.location.hash.replace('#', '');
+      if (h === 'gully' || h === 'camera' || h === 'gps') {
+        switchView(h);
+      }
+    });
+  </script>
+</body>
+</html>
